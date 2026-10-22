@@ -248,7 +248,25 @@ function Login({
       <section className="login-card">
         <p className="step-label">ACESSO DO MORADOR</p>
         <h2>Olá, que bom ter você aqui</h2>
-        <p className="muted">Entre com sua identificação.</p>
+        <p className="muted">Entre com sua identificação ou explore o protótipo diretamente.</p>
+
+        <div className="quick-access-box">
+          <p><strong>Apresentação &amp; Avaliação:</strong></p>
+          <button
+            type="button"
+            className="quick-enter-button"
+            onClick={onLogin}
+          >
+            <span>⚡</span> Explorar protótipo sem login <span>→</span>
+          </button>
+        </div>
+
+        <div className="divider-row">
+          <span />
+          <b>OU ENTRE COM CREDENCIAIS</b>
+          <span />
+        </div>
+
         <form onSubmit={submit}>
           <label>
             Cargo no condomínio
@@ -296,6 +314,14 @@ function Login({
           {error && <p className="form-error">{error}</p>}
           <button className="primary-button full" type="submit">
             Entrar
+          </button>
+          <button
+            type="button"
+            className="secondary-button full"
+            style={{ marginTop: '10px' }}
+            onClick={onLogin}
+          >
+            Entrar com dados pré-preenchidos
           </button>
         </form>
         <button className="text-button" onClick={onSupport}>
@@ -917,7 +943,13 @@ function Settings({
 }
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(false)
+  const [authenticated, setAuthenticated] = useState(() => {
+    try {
+      return localStorage.getItem('ecosis_auth') === 'true'
+    } catch {
+      return false
+    }
+  })
   const [screen, setScreen] = useState<Screen>('home')
   const [highContrast, setHighContrast] = useState(false)
   const [largeText, setLargeText] = useState(false)
@@ -929,6 +961,25 @@ export default function App() {
   function showToast(message: string) {
     setToast(message)
     window.setTimeout(() => setToast(''), 3200)
+  }
+
+  function handleLogin() {
+    try {
+      localStorage.setItem('ecosis_auth', 'true')
+    } catch {
+      // ignore
+    }
+    setAuthenticated(true)
+  }
+
+  function handleLogout() {
+    try {
+      localStorage.removeItem('ecosis_auth')
+    } catch {
+      // ignore
+    }
+    setAuthenticated(false)
+    setScreen('home')
   }
 
   function renderScreen() {
@@ -972,10 +1023,7 @@ export default function App() {
           onContrast={() => setHighContrast(!highContrast)}
           onLargeText={() => setLargeText(!largeText)}
           onToast={showToast}
-          onLogout={() => {
-            setAuthenticated(false)
-            setScreen('home')
-          }}
+          onLogout={handleLogout}
         />
       )
     }
@@ -992,7 +1040,7 @@ export default function App() {
     <div className={`${highContrast ? 'high-contrast ' : ''}${largeText ? 'large-text' : ''}`}>
       {!authenticated ? (
         <Login
-          onLogin={() => setAuthenticated(true)}
+          onLogin={handleLogin}
           onSupport={() => setModal('support')}
           highContrast={highContrast}
           largeText={largeText}
