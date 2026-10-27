@@ -15,6 +15,7 @@ import {
   SettingsIcon,
   SpeakerIcon,
 } from './components/Icons'
+import { DesignSystemView } from './components/DesignSystemView'
 
 type Screen =
   | 'home'
@@ -195,6 +196,7 @@ function BottomNav({
 function Login({
   onLogin,
   onSupport,
+  onDesignSystem,
   highContrast,
   largeText,
   onContrast,
@@ -202,6 +204,7 @@ function Login({
 }: {
   onLogin: () => void
   onSupport: () => void
+  onDesignSystem: () => void
   highContrast: boolean
   largeText: boolean
   onContrast: () => void
@@ -254,6 +257,19 @@ function Login({
             onClick={onLogin}
           >
             <span>⚡</span> Explorar protótipo sem login <span>→</span>
+          </button>
+          <button
+            type="button"
+            className="quick-enter-button"
+            style={{
+              marginTop: '8px',
+              background: '#eef5f2',
+              borderColor: '#16805b',
+              color: '#0f6045',
+            }}
+            onClick={onDesignSystem}
+          >
+            <span>🎨</span> Acessar Design System &amp; Acessibilidade <span>→</span>
           </button>
         </div>
 
@@ -958,6 +974,7 @@ function Settings({
   onContrast,
   onLargeText,
   onToast,
+  onOpenDesignSystem,
   onLogout,
 }: {
   highContrast: boolean
@@ -965,6 +982,7 @@ function Settings({
   onContrast: () => void
   onLargeText: () => void
   onToast: (message: string) => void
+  onOpenDesignSystem: () => void
   onLogout: () => void
 }) {
   const [notifications, setNotifications] = useState(true)
@@ -997,6 +1015,37 @@ function Settings({
             <span>Aumenta o tamanho dos textos da interface</span>
           </div>
           <i className={largeText ? 'switch on' : 'switch'} />
+        </button>
+      </div>
+
+      <div className="settings-group">
+        <p className="overline">DESIGN SYSTEM &amp; DIRETRIZES SENAC</p>
+        <button
+          className="setting-link"
+          onClick={onOpenDesignSystem}
+          style={{
+            background: 'var(--green-soft)',
+            borderColor: 'var(--green)',
+            padding: '16px',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <DesignSystemIcon size={24} style={{ color: 'var(--green-dark)' }} />
+            <div>
+              <strong style={{ display: 'block', color: 'var(--green-dark)', textAlign: 'left' }}>
+                Design System &amp; Acessibilidade
+              </strong>
+              <small style={{ color: '#4f5752', textAlign: 'left', display: 'block' }}>
+                Tokens WCAG 2.1 AA, cores e heurísticas para idosos
+              </small>
+            </div>
+          </div>
+          <b>→</b>
         </button>
       </div>
 
@@ -1045,7 +1094,16 @@ export default function App() {
       return false
     }
   })
-  const [screen, setScreen] = useState<Screen>('home')
+  const [screen, setScreen] = useState<Screen>(() => {
+    try {
+      if (typeof window !== 'undefined' && window.location.hash === '#design-system') {
+        return 'design-system'
+      }
+    } catch {
+      // ignore
+    }
+    return 'home'
+  })
   const [highContrast, setHighContrast] = useState(false)
   const [largeText, setLargeText] = useState(false)
   const [alerts, setAlerts] = useState(initialAlerts)
@@ -1118,6 +1176,7 @@ export default function App() {
           onContrast={() => setHighContrast(!highContrast)}
           onLargeText={() => setLargeText(!largeText)}
           onToast={showToast}
+          onOpenDesignSystem={() => setScreen('design-system')}
           onLogout={handleLogout}
         />
       )
@@ -1133,10 +1192,24 @@ export default function App() {
 
   return (
     <div className={`${highContrast ? 'high-contrast ' : ''}${largeText ? 'large-text' : ''}`}>
-      {!authenticated ? (
+      {!authenticated && screen !== 'design-system' ? (
         <Login
           onLogin={handleLogin}
           onSupport={() => setModal('support')}
+          onDesignSystem={() => setScreen('design-system')}
+          highContrast={highContrast}
+          largeText={largeText}
+          onContrast={() => setHighContrast(!highContrast)}
+          onLargeText={() => setLargeText(!largeText)}
+        />
+      ) : screen === 'design-system' ? (
+        <DesignSystemView
+          onBack={() => {
+            if (typeof window !== 'undefined' && window.location.hash === '#design-system') {
+              window.location.hash = ''
+            }
+            setScreen(authenticated ? 'settings' : 'home')
+          }}
           highContrast={highContrast}
           largeText={largeText}
           onContrast={() => setHighContrast(!highContrast)}
