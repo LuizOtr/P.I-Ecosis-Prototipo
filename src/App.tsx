@@ -1,4 +1,20 @@
-import { FormEvent, ReactNode, useState } from 'react'
+import { ComponentType, FormEvent, ReactNode, useState } from 'react'
+import {
+  AlertsIcon,
+  BackIcon,
+  CheckIcon,
+  ConciergeIcon,
+  DesignSystemIcon,
+  HomeIcon,
+  IconProps,
+  MaintenanceIcon,
+  PackageIcon,
+  PanicIcon,
+  PlusIcon,
+  SearchIcon,
+  SettingsIcon,
+  SpeakerIcon,
+} from './components/Icons'
 
 type Screen =
   | 'home'
@@ -8,6 +24,7 @@ type Screen =
   | 'concierge'
   | 'maintenance'
   | 'settings'
+  | 'design-system'
 
 type CollaborativeAd = {
   id: number
@@ -19,13 +36,13 @@ type CollaborativeAd = {
   date: string
 }
 
-const navItems: { id: Screen; label: string; icon: string }[] = [
-  { id: 'home', label: 'Início', icon: '⌂' },
-  { id: 'alerts', label: 'Avisos', icon: '!' },
-  { id: 'services', label: 'Mural', icon: '▦' },
-  { id: 'concierge', label: 'Portaria', icon: '□' },
-  { id: 'maintenance', label: 'Chamados', icon: '◇' },
-  { id: 'settings', label: 'Ajustes', icon: 'settings' },
+const navItems: { id: Screen; label: string; icon: ComponentType<IconProps> }[] = [
+  { id: 'home', label: 'Início', icon: HomeIcon },
+  { id: 'alerts', label: 'Avisos', icon: AlertsIcon },
+  { id: 'services', label: 'Mural', icon: ServicesIcon },
+  { id: 'concierge', label: 'Portaria', icon: ConciergeIcon },
+  { id: 'maintenance', label: 'Chamados', icon: MaintenanceIcon },
+  { id: 'settings', label: 'Ajustes', icon: SettingsIcon },
 ]
 
 const initialAlerts = [
@@ -132,7 +149,7 @@ function Header({
     <header className="page-header">
       {onBack && (
         <button className="back-button" onClick={onBack} aria-label="Voltar">
-          ←
+          <BackIcon size={22} />
         </button>
       )}
       <div>
@@ -155,43 +172,22 @@ function BottomNav({
 }) {
   return (
     <nav className="bottom-nav" aria-label="Navegação principal">
-      {navItems.map((item) => (
-        <button
-          key={item.id}
-          className={active === item.id ? 'active' : ''}
-          onClick={() => onNavigate(item.id)}
-          aria-current={active === item.id ? 'page' : undefined}
-        >
-          <b
-            aria-hidden="true"
-            style={item.icon === 'settings' ? { position: 'fixed' } : undefined}
+      {navItems.map((item) => {
+        const IconComponent = item.icon
+        return (
+          <button
+            key={item.id}
+            className={active === item.id ? 'active' : ''}
+            onClick={() => onNavigate(item.id)}
+            aria-current={active === item.id ? 'page' : undefined}
           >
-            {item.icon === 'settings' ? (
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                style={{ display: 'block', transform: 'translateZ(0)' }}
-              >
-                <path
-                  d="M12 15.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                />
-                <path
-                  d="M9.64 3.76 10.2 2h3.6l.56 1.76c.48.2.93.46 1.35.78l1.8-.4 1.8 3.12-1.24 1.37c.07.51.07 1.03 0 1.54l1.24 1.37-1.8 3.12-1.8-.4c-.42.32-.87.58-1.35.78L13.8 18h-3.6l-.56-1.76a7.1 7.1 0 0 1-1.35-.78l-1.8.4-1.8-3.12 1.24-1.37a5.7 5.7 0 0 1 0-1.54L4.69 7.26l1.8-3.12 1.8.4c.42-.32.87-.58 1.35-.78Z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                  transform="translate(0 2)"
-                />
-              </svg>
-            ) : (
-              item.icon
-            )}
-          </b>
-          <span>{item.label}</span>
-        </button>
-      ))}
+            <b aria-hidden="true">
+              <IconComponent size={22} />
+            </b>
+            <span>{item.label}</span>
+          </button>
+        )
+      })}
     </nav>
   )
 }
