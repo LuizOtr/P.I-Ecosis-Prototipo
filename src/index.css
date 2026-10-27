@@ -481,26 +481,27 @@ textarea {
 
 .panic-button {
   align-self: flex-start;
-  background: #fff;
-  border: 1px solid #9d2727;
-  border-radius: 8px;
-  color: #892020;
+  background: #fff5f5;
+  border: 1.5px solid #b71c1c;
+  border-radius: 10px;
+  color: #900c0c;
   cursor: pointer;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  min-width: 120px;
-  padding: 11px;
+  min-width: 140px;
+  min-height: 48px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(183, 28, 28, 0.12);
+  transition: all 0.15s ease-in-out;
 }
 
-.panic-button b {
-  background: #9d2727;
-  border-radius: 50%;
-  color: white;
-  display: inline-grid;
-  margin-right: 5px;
-  place-items: center;
-  width: 18px;
-  height: 18px;
+.panic-button:hover {
+  background: #ffebee;
+  transform: translateY(-1px);
 }
 
 .section-title {
@@ -1632,13 +1633,119 @@ textarea {
   border-color: var(--blue);
 }
 
+.alert-item.speaking {
+  border-color: var(--blue) !important;
+  background: var(--blue-soft) !important;
+  box-shadow: 0 0 0 3px rgba(23, 107, 157, 0.25);
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 2px rgba(23, 107, 157, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(23, 107, 157, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(23, 107, 157, 0.2);
+  }
+}
+
+/* Acessibilidade: Modo Alto Contraste (WCAG 2.1 AAA) */
 .high-contrast {
-  filter: contrast(1.35);
+  --ink: #000000;
+  --navy: #000000;
+  --blue: #002244;
+  --blue-soft: #e0f0ff;
+  --green: #004d20;
+  --green-dark: #003314;
+  --green-soft: #e6f7ec;
+  --line: #000000;
 }
 
 .high-contrast .app-shell,
 .high-contrast .login-page {
-  background: #fff;
+  background: #ffffff;
+}
+
+.high-contrast button,
+.high-contrast .feature-card,
+.high-contrast .package-card,
+.high-contrast .alert-item,
+.high-contrast .quick-grid button,
+.high-contrast .outline-action,
+.high-contrast .service-list article,
+.high-contrast .collaborative-list article,
+.high-contrast .modal {
+  border-width: 2px !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
+.high-contrast .primary-button {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .panic-button {
+  background: #b71c1c !important;
+  color: #ffffff !important;
+  border: 3px solid #000000 !important;
+}
+
+/* Acessibilidade: Modo Texto Ampliado (RNF10 - WCAG 2.1 AA) */
+.large-text {
+  font-size: 1.15rem;
+}
+
+.large-text h1 {
+  font-size: 1.75rem !important;
+}
+
+.large-text h2 {
+  font-size: 1.45rem !important;
+}
+
+.large-text h3 {
+  font-size: 1.25rem !important;
+}
+
+.large-text p,
+.large-text span,
+.large-text button,
+.large-text input,
+.large-text select,
+.large-text textarea,
+.large-text label,
+.large-text time {
+  font-size: 1.05rem !important;
+  line-height: 1.6 !important;
+}
+
+.large-text .page-header span,
+.large-text .overline,
+.large-text .step-label {
+  font-size: 0.85rem !important;
+}
+
+.large-text .bottom-nav button span {
+  font-size: 0.78rem !important;
+}
+
+.large-text .badge,
+.large-text .status-chip {
+  font-size: 0.82rem !important;
+  padding: 6px 12px !important;
+}
+
+.large-text .primary-button,
+.large-text .secondary-button,
+.large-text .danger-button,
+.large-text .panic-button {
+  min-height: 56px !important;
+  padding: 14px 22px !important;
 }
 
 @media (max-width: 800px) {

@@ -339,6 +339,26 @@ function Login({
   )
 }
 
+function speakText(text: string, onEnd?: () => void) {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'pt-BR'
+    utterance.rate = 0.92
+    if (onEnd) {
+      utterance.onend = onEnd
+      utterance.onerror = onEnd
+    }
+    window.speechSynthesis.speak(utterance)
+  }
+}
+
+function stopSpeech() {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+  }
+}
+
 function Home({
   onNavigate,
   onPanic,
@@ -357,9 +377,13 @@ function Home({
           <h2>Bem-vinda ao EcoSis</h2>
           <p>Acesse rapidamente o que você precisa hoje.</p>
         </div>
-        <button className="panic-button" onClick={onPanic}>
-          <b>!</b>
-          Botão de pânico
+        <button
+          className="panic-button"
+          onClick={onPanic}
+          aria-label="Acionar botão de emergência e pânico"
+        >
+          <PanicIcon size={20} />
+          <span>Botão de pânico (SOS)</span>
         </button>
       </section>
 
@@ -371,7 +395,9 @@ function Home({
         <button onClick={() => onNavigate('alerts')}>Ver avisos</button>
       </div>
       <button className="feature-card" onClick={() => onNavigate('alerts')}>
-        <div className="feature-icon">!</div>
+        <div className="feature-icon">
+          <AlertsIcon size={24} />
+        </div>
         <div>
           <span className="badge">{unread} novos</span>
           <h3>Avisos recentes</h3>
@@ -382,19 +408,25 @@ function Home({
 
       <div className="quick-grid">
         <button onClick={() => onNavigate('services')}>
-          <span>▦</span>
+          <span>
+            <ServicesIcon size={22} />
+          </span>
           <h3>Mural de serviços</h3>
           <p>Encontre indicações dos vizinhos.</p>
         </button>
         <button onClick={() => onNavigate('concierge')}>
-          <span>□</span>
+          <span>
+            <ConciergeIcon size={22} />
+          </span>
           <h3>Encomendas</h3>
           <p>Você tem uma retirada pendente.</p>
         </button>
       </div>
 
       <button className="outline-action" onClick={() => onNavigate('maintenance')}>
-        <span>◇</span>
+        <span>
+          <MaintenanceIcon size={22} />
+        </span>
         <div>
           <strong>Registrar um chamado</strong>
           <small>Informe um problema para o síndico</small>
@@ -414,29 +446,88 @@ function Alerts({
   onReadAll: () => void
   onNew: () => void
 }) {
-  const [voice, setVoice] = useState(false)
+  const [speakingId, setSpeakingId] = useState<number | 'all' | null>(null)
+
+  function handleToggleReadAloud() {
+    if (speakingId !== null) {
+      stopSpeech()
+      setSpeakingId(null)
+      return
+    }
+    setSpeakingId('all')
+    const fullText =
+      `Central de avisos do condomínio. Você tem ${alerts.length} comunicados importantes. ` +
+      alerts.map((a, i) => `Aviso ${i + 1}: ${a.title}. ${a.text}`).join('. ')
+    speakText(fullText, () => setSpeakingId(null))
+  }
+
+  function handleReadSingle(alert: (typeof initialAlerts)[0]) {
+    if (speakingId === alert.id) {
+      stopSpeech()
+      setSpeakingId(null)
+      return
+    }
+    setSpeakingId(alert.id)
+    speakText(`Aviso: ${alert.title}. ${alert.text}. Publicado em: ${alert.date}`, () =>
+      setSpeakingId(null),
+    )
+  }
+
   return (
     <div className="screen-content">
       <Header title="Central de avisos" eyebrow="FIQUE POR DENTRO" />
       <div className="toolbar">
-        <button className={voice ? 'tool active' : 'tool'} onClick={() => setVoice(!voice)}>
-          <span>))</span> {voice ? 'Leitura ativada' : 'Ouvir avisos'}
+        <button
+          className={speakingId !== null ? 'tool active' : 'tool'}
+          onClick={handleToggleReadAloud}
+          aria-label={
+            speakingId !== null
+              ? 'Parar leitura por voz dos avisos'
+              : 'Ouvir todos os avisos em voz alta'
+          }
+        >
+          <SpeakerIcon size={18} />
+          <span>{speakingId !== null ? 'Parar leitura' : 'Ouvir avisos'}</span>
         </button>
-        <button className="tool" onClick={onReadAll}>
-          ✓ Marcar como lidos
+        <button className="tool" onClick={onReadAll} aria-label="Marcar avisos como lidos">
+          <CheckIcon size={18} />
+          <span>Marcar como lidos</span>
         </button>
       </div>
-      {voice && <div className="info-banner">Leitura por voz simulada. Selecione um aviso para acompanhar.</div>}
+      {speakingId !== null && (
+        <div className="info-banner" role="status">
+          🔊 Reproduzindo avisos em voz alta. Clique em &quot;Parar leitura&quot; para silenciar.
+        </div>
+      )}
       <div className="alert-list">
         {alerts.map((alert) => (
-          <article className={alert.read ? 'alert-item read' : 'alert-item'} key={alert.id}>
+          <article
+            className={`${alert.read ? 'alert-item read' : 'alert-item'}${speakingId === alert.id ? ' speaking' : ''}`}
+            key={alert.id}
+          >
             <div className="alert-meta">
               <span>{alert.read ? 'LIDO' : 'NOVO AVISO'}</span>
               <time>{alert.date}</time>
             </div>
             <h2>{alert.title}</h2>
             <p>{alert.text}</p>
-            {voice && <button className="inline-action">Ouvir este aviso</button>}
+            <button
+              className="inline-action"
+              onClick={() => handleReadSingle(alert)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginTop: '10px',
+                padding: '6px 0',
+              }}
+              aria-label={`Ouvir o comunicado ${alert.title} em voz alta`}
+            >
+              <SpeakerIcon size={16} />
+              <span>
+                {speakingId === alert.id ? 'Parar leitura deste aviso' : 'Ouvir este aviso'}
+              </span>
+            </button>
           </article>
         ))}
       </div>
@@ -475,7 +566,9 @@ function Services({
     <div className="screen-content">
       <Header title="Mural dos vizinhos" eyebrow="INDICAÇÕES DA COMUNIDADE" />
       <button className="collaborative-callout" onClick={onOpenCollaborative}>
-        <div className="collaborative-callout-icon">+</div>
+        <div className="collaborative-callout-icon">
+          <PlusIcon size={20} />
+        </div>
         <div>
           <span>NOVO ESPAÇO DA COMUNIDADE</span>
           <strong>Mural de Serviços Colaborativos</strong>
@@ -486,7 +579,9 @@ function Services({
         </span>
       </button>
       <div className="search-box">
-        <span>⌕</span>
+        <span>
+          <SearchIcon size={18} />
+        </span>
         <input
           placeholder="Buscar serviço ou profissional"
           value={query}
@@ -716,7 +811,9 @@ function Concierge({ onToast }: { onToast: (message: string) => void }) {
       </div>
       {packageReady ? (
         <article className="package-card">
-          <div className="package-icon">□</div>
+          <div className="package-icon">
+            <PackageIcon size={26} />
+          </div>
           <div>
             <span>RECEBIDA HOJE, 11:40</span>
             <h3>Encomenda na portaria</h3>
@@ -792,7 +889,9 @@ function Maintenance({ onToast }: { onToast: (message: string) => void }) {
     <div className="screen-content">
       <Header title="Chamados de manutenção" eyebrow="FALE COM O SÍNDICO" />
       <section className="maintenance-intro">
-        <span>◇</span>
+        <span>
+          <MaintenanceIcon size={24} />
+        </span>
         <div>
           <h2>Encontrou algum problema?</h2>
           <p>Descreva a situação e acompanhe a resolução pelo histórico.</p>
@@ -1071,23 +1170,34 @@ export default function App() {
       )}
 
       {modal === 'panic' && (
-        <Modal title="Acionar alerta de emergência?" onClose={() => setModal(null)}>
+        <Modal title="Confirmar alerta de emergência?" onClose={() => setModal(null)}>
           <div className="panic-confirm">
-            <b>!</b>
-            <p>Este alerta avisará imediatamente a portaria e identificará seu apartamento.</p>
+            <b>
+              <PanicIcon size={26} />
+            </b>
+            <div>
+              <p>
+                <strong>Você está acionando o botão de emergência da portaria.</strong>
+              </p>
+              <p style={{ marginTop: '6px', fontSize: '0.85rem' }}>
+                A equipe de segurança receberá sua localização imediatamente (Bloco A · Apto 84).
+              </p>
+            </div>
           </div>
           <div className="modal-actions">
             <button className="secondary-button" onClick={() => setModal(null)}>
-              Cancelar
+              Cancelar e voltar
             </button>
             <button
               className="danger-button"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
               onClick={() => {
                 setModal(null)
-                showToast('Alerta enviado. A portaria está entrando em contato.')
+                showToast('🚨 Alerta enviado! A portaria foi notificada e já está atendendo.')
               }}
             >
-              Sim, enviar alerta
+              <PanicIcon size={18} />
+              Sim, chamar portaria agora
             </button>
           </div>
         </Modal>
@@ -1125,8 +1235,8 @@ export default function App() {
 
       {toast && (
         <div className="toast" role="status">
-          <b>✓</b>
-          {toast}
+          <CheckIcon size={18} />
+          <span>{toast}</span>
         </div>
       )}
     </div>
