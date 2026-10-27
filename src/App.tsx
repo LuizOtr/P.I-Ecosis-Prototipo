@@ -1,4 +1,4 @@
-import { ComponentType, FormEvent, ReactNode, useState } from 'react'
+import { ComponentType, FormEvent, ReactNode, useState } from "react"
 import {
   AlertsIcon,
   BackIcon,
@@ -14,18 +14,10 @@ import {
   SearchIcon,
   SettingsIcon,
   SpeakerIcon,
-} from './components/Icons'
-import { DesignSystemView } from './components/DesignSystemView'
+} from "./components/Icons"
+import { DesignSystemView } from "./components/DesignSystemView"
 
-type Screen =
-  | 'home'
-  | 'alerts'
-  | 'services'
-  | 'collaborative'
-  | 'concierge'
-  | 'maintenance'
-  | 'settings'
-  | 'design-system'
+type Screen = "home" | "alerts" | "services" | "collaborative" | "concierge" | "maintenance" | "settings" | "design-system"
 
 type CollaborativeAd = {
   id: number
@@ -37,73 +29,102 @@ type CollaborativeAd = {
   date: string
 }
 
-const navItems: { id: Screen; label: string; icon: ComponentType<IconProps> }[] = [
-  { id: 'home', label: 'Início', icon: HomeIcon },
-  { id: 'alerts', label: 'Avisos', icon: AlertsIcon },
-  { id: 'services', label: 'Mural', icon: ServicesIcon },
-  { id: 'concierge', label: 'Portaria', icon: ConciergeIcon },
-  { id: 'maintenance', label: 'Chamados', icon: MaintenanceIcon },
-  { id: 'settings', label: 'Ajustes', icon: SettingsIcon },
+type NavItem = {
+  id: Screen
+  label: string
+  icon: ComponentType<IconProps>
+}
+
+const navItems: NavItem[] = [
+  { id: "home", label: "Início", icon: HomeIcon },
+  { id: "alerts", label: "Avisos", icon: AlertsIcon },
+  { id: "services", label: "Mural", icon: ServicesIcon },
+  { id: "concierge", label: "Portaria", icon: ConciergeIcon },
+  { id: "maintenance", label: "Chamados", icon: MaintenanceIcon },
+  { id: "settings", label: "Ajustes", icon: SettingsIcon },
 ]
 
 const initialAlerts = [
   {
     id: 1,
-    title: 'Manutenção do elevador',
-    text: 'Elevador social indisponível amanhã, das 9h às 12h.',
-    date: 'Hoje, 10:30',
+    title: "Manutenção do elevador",
+    text: "Elevador social indisponível amanhã, das 9h às 12h.",
+    date: "Hoje, 10:30",
     read: false,
   },
   {
     id: 2,
-    title: 'Assembleia do condomínio',
-    text: 'Reunião no salão de festas na quinta-feira, às 19h.',
-    date: 'Ontem, 17:45',
+    title: "Assembleia do condomínio",
+    text: "Reunião no salão de festas na quinta-feira, às 19h.",
+    date: "Ontem, 17:45",
     read: false,
   },
   {
     id: 3,
-    title: 'Limpeza da caixa d’água',
-    text: 'Serviço concluído. O abastecimento já foi normalizado.',
-    date: '12 jun, 14:20',
+    title: "Limpeza da caixa d’água",
+    text: "Serviço concluído. O abastecimento já foi normalizado.",
+    date: "12 jun, 14:20",
     read: true,
   },
 ]
 
 const services = [
-  { category: 'Elétrica', name: 'André Eletricista', detail: 'Pequenos reparos e instalações', phone: '(11) 99999-1020' },
-  { category: 'Reformas', name: 'Casa em Ordem', detail: 'Pintura e manutenção residencial', phone: '(11) 99999-4060' },
-  { category: 'Elétrica', name: 'Luz & Cia', detail: 'Atendimento emergencial 24h', phone: '(11) 99999-3388' },
-  { category: 'Sons', name: 'Marcos Sonorização', detail: 'Festas e pequenos eventos', phone: '(11) 99999-7781' },
+  {
+    category: "Elétrica",
+    name: "André Eletricista",
+    detail: "Pequenos reparos e instalações",
+    phone: "(11) 99999-1020",
+  },
+  {
+    category: "Reformas",
+    name: "Casa em Ordem",
+    detail: "Pintura e manutenção residencial",
+    phone: "(11) 99999-4060",
+  },
+  {
+    category: "Elétrica",
+    name: "Luz & Cia",
+    detail: "Atendimento emergencial 24h",
+    phone: "(11) 99999-3388",
+  },
+  {
+    category: "Sons",
+    name: "Marcos Sonorização",
+    detail: "Festas e pequenos eventos",
+    phone: "(11) 99999-7781",
+  },
 ]
 
 const initialCollaborativeAds: CollaborativeAd[] = [
   {
     id: 1,
-    title: 'Aulas de reforço em matemática',
-    description: 'Dou aulas para estudantes do ensino fundamental, presencialmente no salão de estudos.',
-    category: 'Aulas',
-    contact: '(11) 98888-1204',
-    author: 'Paula · Bloco B, 32',
-    date: 'Publicado hoje',
+    title: "Aulas de reforço em matemática",
+    description:
+      "Dou aulas para estudantes do ensino fundamental, presencialmente no salão de estudos.",
+    category: "Aulas",
+    contact: "(11) 98888-1204",
+    author: "Paula · Bloco B, 32",
+    date: "Publicado hoje",
   },
   {
     id: 2,
-    title: 'Manutenção de computadores',
-    description: 'Formatação, limpeza e configuração de computadores e notebooks.',
-    category: 'Tecnologia',
-    contact: 'ricardo@email.com',
-    author: 'Ricardo · Bloco A, 17',
-    date: 'Publicado ontem',
+    title: "Manutenção de computadores",
+    description:
+      "Formatação, limpeza e configuração de computadores e notebooks.",
+    category: "Tecnologia",
+    contact: "ricardo@email.com",
+    author: "Ricardo · Bloco A, 17",
+    date: "Publicado ontem",
   },
   {
     id: 3,
-    title: 'Passeio com cães',
-    description: 'Tenho disponibilidade no período da manhã para passear com cães de pequeno e médio porte.',
-    category: 'Cuidados',
-    contact: '(11) 97777-4032',
-    author: 'Bia · Bloco C, 08',
-    date: 'Publicado há 3 dias',
+    title: "Passeio com cães",
+    description:
+      "Tenho disponibilidade no período da manhã para passear com cães de pequeno e médio porte.",
+    category: "Cuidados",
+    contact: "(11) 97777-4032",
+    author: "Bia · Bloco C, 08",
+    date: "Publicado há 3 dias",
   },
 ]
 
@@ -178,9 +199,9 @@ function BottomNav({
         return (
           <button
             key={item.id}
-            className={active === item.id ? 'active' : ''}
+            className={active === item.id ? "active" : ""}
             onClick={() => onNavigate(item.id)}
-            aria-current={active === item.id ? 'page' : undefined}
+            aria-current={active === item.id ? "page" : undefined}
           >
             <b aria-hidden="true">
               <IconComponent size={22} />
@@ -210,24 +231,24 @@ function Login({
   onContrast: () => void
   onLargeText: () => void
 }) {
-  const [role, setRole] = useState('Morador')
-  const [unit, setUnit] = useState('Bloco A · Apto 84')
-  const [email, setEmail] = useState('morador@ecosis.com')
-  const [password, setPassword] = useState('123456')
+  const [role, setRole] = useState("Morador")
+  const [unit, setUnit] = useState("Bloco A · Apto 84")
+  const [email, setEmail] = useState("morador@ecosis.com")
+  const [password, setPassword] = useState("123456")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState("")
 
   function submit(event: FormEvent) {
     event.preventDefault()
     if (!role || !unit.trim() || !email.trim() || !password.trim()) {
-      setError('Selecione o cargo e preencha todos os dados para continuar.')
+      setError("Selecione o cargo e preencha todos os dados para continuar.")
       return
     }
-    if (!email.includes('@')) {
-      setError('Informe um e-mail válido para continuar.')
+    if (!email.includes("@")) {
+      setError("Informe um e-mail válido para continuar.")
       return
     }
-    setError('')
+    setError("")
     onLogin()
   }
 
@@ -237,7 +258,9 @@ function Login({
         <div className="brand-mark">ES</div>
         <p className="overline">EcoSis Condomínio</p>
         <h1>Tudo do seu condomínio em um só lugar.</h1>
-        <p>Acompanhe avisos, encomendas, serviços e chamados com simplicidade.</p>
+        <p>
+          Acompanhe avisos, encomendas, serviços e chamados com simplicidade.
+        </p>
         <div className="prototype-note">
           <span>Protótipo navegável</span>
           <p>Use os dados já preenchidos para explorar todos os fluxos.</p>
@@ -247,10 +270,14 @@ function Login({
       <section className="login-card">
         <p className="step-label">ACESSO DO MORADOR</p>
         <h2>Olá, que bom ter você aqui</h2>
-        <p className="muted">Entre com sua identificação ou explore o protótipo diretamente.</p>
+        <p className="muted">
+          Entre com sua identificação ou explore o protótipo diretamente.
+        </p>
 
         <div className="quick-access-box">
-          <p><strong>Apresentação &amp; Avaliação:</strong></p>
+          <p>
+            <strong>Apresentação &amp; Avaliação:</strong>
+          </p>
           <button
             type="button"
             className="quick-enter-button"
@@ -262,14 +289,15 @@ function Login({
             type="button"
             className="quick-enter-button"
             style={{
-              marginTop: '8px',
-              background: '#eef5f2',
-              borderColor: '#16805b',
-              color: '#0f6045',
+              marginTop: "8px",
+              background: "#eef5f2",
+              borderColor: "#16805b",
+              color: "#0f6045",
             }}
             onClick={onDesignSystem}
           >
-            <span>🎨</span> Acessar Design System &amp; Acessibilidade <span>→</span>
+            <span>🎨</span> Acessar Design System &amp; Acessibilidade{" "}
+            <span>→</span>
           </button>
         </div>
 
@@ -282,7 +310,10 @@ function Login({
         <form onSubmit={submit}>
           <label>
             Cargo no condomínio
-            <select value={role} onChange={(event) => setRole(event.target.value)}>
+            <select
+              value={role}
+              onChange={(event) => setRole(event.target.value)}
+            >
               <option value="Morador">Morador</option>
               <option value="Síndico">Síndico</option>
               <option value="Funcionário">Funcionário</option>
@@ -313,13 +344,16 @@ function Login({
             Senha
             <div className="password-field">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? 'Ocultar' : 'Mostrar'}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Ocultar" : "Mostrar"}
               </button>
             </div>
           </label>
@@ -330,7 +364,7 @@ function Login({
           <button
             type="button"
             className="secondary-button full"
-            style={{ marginTop: '10px' }}
+            style={{ marginTop: "10px" }}
             onClick={onLogin}
           >
             Entrar com dados pré-preenchidos
@@ -343,11 +377,11 @@ function Login({
           <strong>Acessibilidade</strong>
           <button onClick={onContrast}>
             <span>Alto contraste</span>
-            <i className={highContrast ? 'switch on' : 'switch'} />
+            <i className={highContrast ? "switch on" : "switch"} />
           </button>
           <button onClick={onLargeText}>
             <span>Texto ampliado</span>
-            <i className={largeText ? 'switch on' : 'switch'} />
+            <i className={largeText ? "switch on" : "switch"} />
           </button>
         </div>
       </section>
@@ -356,10 +390,10 @@ function Login({
 }
 
 function speakText(text: string, onEnd?: () => void) {
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'pt-BR'
+    utterance.lang = "pt-BR"
     utterance.rate = 0.92
     if (onEnd) {
       utterance.onend = onEnd
@@ -370,7 +404,7 @@ function speakText(text: string, onEnd?: () => void) {
 }
 
 function stopSpeech() {
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel()
   }
 }
@@ -408,9 +442,9 @@ function Home({
           <p className="overline">ATUALIZAÇÕES</p>
           <h2>Acontecendo agora</h2>
         </div>
-        <button onClick={() => onNavigate('alerts')}>Ver avisos</button>
+        <button onClick={() => onNavigate("alerts")}>Ver avisos</button>
       </div>
-      <button className="feature-card" onClick={() => onNavigate('alerts')}>
+      <button className="feature-card" onClick={() => onNavigate("alerts")}>
         <div className="feature-icon">
           <AlertsIcon size={24} />
         </div>
@@ -423,14 +457,14 @@ function Home({
       </button>
 
       <div className="quick-grid">
-        <button onClick={() => onNavigate('services')}>
+        <button onClick={() => onNavigate("services")}>
           <span>
             <ServicesIcon size={22} />
           </span>
           <h3>Mural de serviços</h3>
           <p>Encontre indicações dos vizinhos.</p>
         </button>
-        <button onClick={() => onNavigate('concierge')}>
+        <button onClick={() => onNavigate("concierge")}>
           <span>
             <ConciergeIcon size={22} />
           </span>
@@ -439,7 +473,10 @@ function Home({
         </button>
       </div>
 
-      <button className="outline-action" onClick={() => onNavigate('maintenance')}>
+      <button
+        className="outline-action"
+        onClick={() => onNavigate("maintenance")}
+      >
         <span>
           <MaintenanceIcon size={22} />
         </span>
@@ -462,7 +499,7 @@ function Alerts({
   onReadAll: () => void
   onNew: () => void
 }) {
-  const [speakingId, setSpeakingId] = useState<number | 'all' | null>(null)
+  const [speakingId, setSpeakingId] = useState<number | "all" | null>(null)
 
   function handleToggleReadAloud() {
     if (speakingId !== null) {
@@ -470,22 +507,23 @@ function Alerts({
       setSpeakingId(null)
       return
     }
-    setSpeakingId('all')
+    setSpeakingId("all")
     const fullText =
       `Central de avisos do condomínio. Você tem ${alerts.length} comunicados importantes. ` +
-      alerts.map((a, i) => `Aviso ${i + 1}: ${a.title}. ${a.text}`).join('. ')
+      alerts.map((a, i) => `Aviso ${i + 1}: ${a.title}. ${a.text}`).join(". ")
     speakText(fullText, () => setSpeakingId(null))
   }
 
-  function handleReadSingle(alert: (typeof initialAlerts)[0]) {
+  function handleReadSingle(alert: typeof initialAlerts[0]) {
     if (speakingId === alert.id) {
       stopSpeech()
       setSpeakingId(null)
       return
     }
     setSpeakingId(alert.id)
-    speakText(`Aviso: ${alert.title}. ${alert.text}. Publicado em: ${alert.date}`, () =>
-      setSpeakingId(null),
+    speakText(
+      `Aviso: ${alert.title}. ${alert.text}. Publicado em: ${alert.date}`,
+      () => setSpeakingId(null),
     )
   }
 
@@ -494,35 +532,42 @@ function Alerts({
       <Header title="Central de avisos" eyebrow="FIQUE POR DENTRO" />
       <div className="toolbar">
         <button
-          className={speakingId !== null ? 'tool active' : 'tool'}
+          className={speakingId !== null ? "tool active" : "tool"}
           onClick={handleToggleReadAloud}
           aria-label={
             speakingId !== null
-              ? 'Parar leitura por voz dos avisos'
-              : 'Ouvir todos os avisos em voz alta'
+              ? "Parar leitura por voz dos avisos"
+              : "Ouvir todos os avisos em voz alta"
           }
         >
           <SpeakerIcon size={18} />
-          <span>{speakingId !== null ? 'Parar leitura' : 'Ouvir avisos'}</span>
+          <span>{speakingId !== null ? "Parar leitura" : "Ouvir avisos"}</span>
         </button>
-        <button className="tool" onClick={onReadAll} aria-label="Marcar avisos como lidos">
+        <button
+          className="tool"
+          onClick={onReadAll}
+          aria-label="Marcar avisos como lidos"
+        >
           <CheckIcon size={18} />
           <span>Marcar como lidos</span>
         </button>
       </div>
       {speakingId !== null && (
         <div className="info-banner" role="status">
-          🔊 Reproduzindo avisos em voz alta. Clique em &quot;Parar leitura&quot; para silenciar.
+          🔊 Reproduzindo avisos em voz alta. Clique em &quot;Parar
+          leitura&quot; para silenciar.
         </div>
       )}
       <div className="alert-list">
         {alerts.map((alert) => (
           <article
-            className={`${alert.read ? 'alert-item read' : 'alert-item'}${speakingId === alert.id ? ' speaking' : ''}`}
+            className={`${alert.read ? "alert-item read" : "alert-item"}${
+              speakingId === alert.id ? " speaking" : ""
+            }`}
             key={alert.id}
           >
             <div className="alert-meta">
-              <span>{alert.read ? 'LIDO' : 'NOVO AVISO'}</span>
+              <span>{alert.read ? "LIDO" : "NOVO AVISO"}</span>
               <time>{alert.date}</time>
             </div>
             <h2>{alert.title}</h2>
@@ -531,17 +576,19 @@ function Alerts({
               className="inline-action"
               onClick={() => handleReadSingle(alert)}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginTop: '10px',
-                padding: '6px 0',
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                marginTop: "10px",
+                padding: "6px 0",
               }}
               aria-label={`Ouvir o comunicado ${alert.title} em voz alta`}
             >
               <SpeakerIcon size={16} />
               <span>
-                {speakingId === alert.id ? 'Parar leitura deste aviso' : 'Ouvir este aviso'}
+                {speakingId === alert.id
+                  ? "Parar leitura deste aviso"
+                  : "Ouvir este aviso"}
               </span>
             </button>
           </article>
@@ -561,20 +608,22 @@ function Services({
   onToast: (message: string) => void
   onOpenCollaborative: () => void
 }) {
-  const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('Todos')
+  const [query, setQuery] = useState("")
+  const [category, setCategory] = useState("Todos")
   const [publishing, setPublishing] = useState(false)
-  const [name, setName] = useState('')
+  const [name, setName] = useState("")
   const filtered = services.filter(
     (service) =>
-      (category === 'Todos' || service.category === category) &&
-      `${service.name} ${service.detail}`.toLowerCase().includes(query.toLowerCase()),
+      (category === "Todos" || service.category === category) &&
+      `${service.name} ${service.detail}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
   )
 
   function publish(event: FormEvent) {
     event.preventDefault()
-    onToast(`Indicação de “${name || 'novo serviço'}” enviada para análise.`)
-    setName('')
+    onToast(`Indicação de “${name || "novo serviço"}” enviada para análise.`)
+    setName("")
     setPublishing(false)
   }
 
@@ -588,7 +637,9 @@ function Services({
         <div>
           <span>NOVO ESPAÇO DA COMUNIDADE</span>
           <strong>Mural de Serviços Colaborativos</strong>
-          <p>Publique ou encontre serviços oferecidos pelos próprios moradores.</p>
+          <p>
+            Publique ou encontre serviços oferecidos pelos próprios moradores.
+          </p>
         </div>
         <span className="collaborative-callout-cta">
           Acessar mural <b>→</b>
@@ -605,8 +656,12 @@ function Services({
         />
       </div>
       <div className="filter-row" aria-label="Filtros de categoria">
-        {['Todos', 'Elétrica', 'Reformas', 'Sons'].map((item) => (
-          <button className={category === item ? 'active' : ''} onClick={() => setCategory(item)} key={item}>
+        {["Todos", "Elétrica", "Reformas", "Sons"].map((item) => (
+          <button
+            className={category === item ? "active" : ""}
+            onClick={() => setCategory(item)}
+            key={item}
+          >
             {item}
           </button>
         ))}
@@ -618,16 +673,24 @@ function Services({
       <div className="service-list">
         {filtered.map((service) => (
           <article key={service.name}>
-            <div className="service-avatar">{service.name.slice(0, 2).toUpperCase()}</div>
+            <div className="service-avatar">
+              {service.name.slice(0, 2).toUpperCase()}
+            </div>
             <div>
               <span>{service.category}</span>
               <h2>{service.name}</h2>
               <p>{service.detail}</p>
-              <a href={`tel:${service.phone.replace(/\D/g, '')}`}>Ligar: {service.phone}</a>
+              <a href={`tel:${service.phone.replace(/\D/g, "")}`}>
+                Ligar: {service.phone}
+              </a>
             </div>
           </article>
         ))}
-        {filtered.length === 0 && <div className="empty-state">Nenhum serviço encontrado com esses filtros.</div>}
+        {filtered.length === 0 && (
+          <div className="empty-state">
+            Nenhum serviço encontrado com esses filtros.
+          </div>
+        )}
       </div>
       <button className="floating-action" onClick={() => setPublishing(true)}>
         + Publicar um serviço
@@ -637,7 +700,11 @@ function Services({
           <form className="modal-form" onSubmit={publish}>
             <label>
               Nome do profissional ou empresa
-              <input required value={name} onChange={(event) => setName(event.target.value)} />
+              <input
+                required
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
             </label>
             <label>
               Categoria
@@ -670,13 +737,21 @@ function CollaborativeServices({
   onToast: (message: string) => void
 }) {
   const [publishing, setPublishing] = useState(false)
-  const [category, setCategory] = useState('Todas')
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [adCategory, setAdCategory] = useState('Aulas')
-  const [contact, setContact] = useState('')
-  const categories = ['Todas', 'Aulas', 'Tecnologia', 'Cuidados', 'Alimentação', 'Outros']
-  const filteredAds = category === 'Todas' ? ads : ads.filter((ad) => ad.category === category)
+  const [category, setCategory] = useState("Todas")
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [adCategory, setAdCategory] = useState("Aulas")
+  const [contact, setContact] = useState("")
+  const categories = [
+    "Todas",
+    "Aulas",
+    "Tecnologia",
+    "Cuidados",
+    "Alimentação",
+    "Outros",
+  ]
+  const filteredAds =
+    category === "Todas" ? ads : ads.filter((ad) => ad.category === category)
 
   function publish(event: FormEvent) {
     event.preventDefault()
@@ -686,19 +761,23 @@ function CollaborativeServices({
       description,
       category: adCategory,
       contact,
-      author: 'Você · Bloco A, 84',
-      date: 'Publicado agora',
+      author: "Você · Bloco A, 84",
+      date: "Publicado agora",
     })
-    setTitle('')
-    setDescription('')
-    setContact('')
+    setTitle("")
+    setDescription("")
+    setContact("")
     setPublishing(false)
-    onToast('Seu anúncio foi publicado no mural colaborativo.')
+    onToast("Seu anúncio foi publicado no mural colaborativo.")
   }
 
   return (
     <div className="screen-content">
-      <Header title="Serviços colaborativos" eyebrow="DE MORADOR PARA MORADOR" onBack={onBack} />
+      <Header
+        title="Serviços colaborativos"
+        eyebrow="DE MORADOR PARA MORADOR"
+        onBack={onBack}
+      />
       <section className="collaborative-hero">
         <div className="community-symbol">
           <span />
@@ -707,7 +786,10 @@ function CollaborativeServices({
         </div>
         <div>
           <h2>Compartilhe o que você sabe fazer</h2>
-          <p>Ofereça serviços, encontre talentos e fortaleça a comunidade do condomínio.</p>
+          <p>
+            Ofereça serviços, encontre talentos e fortaleça a comunidade do
+            condomínio.
+          </p>
         </div>
         <button onClick={() => setPublishing(true)}>+ Publicar anúncio</button>
       </section>
@@ -722,7 +804,11 @@ function CollaborativeServices({
 
       <div className="filter-row" aria-label="Filtrar anúncios por categoria">
         {categories.map((item) => (
-          <button className={category === item ? 'active' : ''} onClick={() => setCategory(item)} key={item}>
+          <button
+            className={category === item ? "active" : ""}
+            onClick={() => setCategory(item)}
+            key={item}
+          >
             {item}
           </button>
         ))}
@@ -741,12 +827,22 @@ function CollaborativeServices({
               <div>{ad.author.charAt(0)}</div>
               <span>{ad.author}</span>
             </div>
-            <button onClick={() => onToast(`Contato de ${ad.author.split(' · ')[0]}: ${ad.contact}`)}>
+            <button
+              onClick={() =>
+                onToast(
+                  `Contato de ${ad.author.split(" · ")[0]}: ${ad.contact}`,
+                )
+              }
+            >
               Ver contato
             </button>
           </article>
         ))}
-        {filteredAds.length === 0 && <div className="empty-state">Ainda não há anúncios nesta categoria.</div>}
+        {filteredAds.length === 0 && (
+          <div className="empty-state">
+            Ainda não há anúncios nesta categoria.
+          </div>
+        )}
       </div>
 
       <button className="floating-action" onClick={() => setPublishing(true)}>
@@ -754,8 +850,13 @@ function CollaborativeServices({
       </button>
 
       {publishing && (
-        <Modal title="Novo anúncio colaborativo" onClose={() => setPublishing(false)}>
-          <p className="modal-copy">Conte aos seus vizinhos qual serviço você oferece.</p>
+        <Modal
+          title="Novo anúncio colaborativo"
+          onClose={() => setPublishing(false)}
+        >
+          <p className="modal-copy">
+            Conte aos seus vizinhos qual serviço você oferece.
+          </p>
           <form className="modal-form" onSubmit={publish}>
             <label>
               Título
@@ -777,7 +878,10 @@ function CollaborativeServices({
             </label>
             <label>
               Categoria
-              <select value={adCategory} onChange={(event) => setAdCategory(event.target.value)}>
+              <select
+                value={adCategory}
+                onChange={(event) => setAdCategory(event.target.value)}
+              >
                 {categories.slice(1).map((item) => (
                   <option key={item}>{item}</option>
                 ))}
@@ -792,7 +896,9 @@ function CollaborativeServices({
                 placeholder="Telefone, WhatsApp ou e-mail"
               />
             </label>
-            <p className="privacy-note">Seu nome, bloco e unidade serão exibidos junto ao anúncio.</p>
+            <p className="privacy-note">
+              Seu nome, bloco e unidade serão exibidos junto ao anúncio.
+            </p>
             <button className="primary-button full" type="submit">
               Publicar no mural
             </button>
@@ -811,7 +917,7 @@ function Concierge({ onToast }: { onToast: (message: string) => void }) {
       <Header title="Portaria e encomendas" eyebrow="ACESSO E RETIRADAS" />
       <section className="summary-row">
         <div>
-          <b>{packageReady ? '1' : '0'}</b>
+          <b>{packageReady ? "1" : "0"}</b>
           <span>retiradas pendentes</span>
         </div>
         <div>
@@ -838,14 +944,16 @@ function Concierge({ onToast }: { onToast: (message: string) => void }) {
           <button
             onClick={() => {
               setPackageReady(false)
-              onToast('Retirada confirmada. A portaria foi avisada.')
+              onToast("Retirada confirmada. A portaria foi avisada.")
             }}
           >
             Confirmar retirada
           </button>
         </article>
       ) : (
-        <div className="empty-state">Nenhuma encomenda aguardando retirada.</div>
+        <div className="empty-state">
+          Nenhuma encomenda aguardando retirada.
+        </div>
       )}
       <div className="section-title">
         <div>
@@ -859,18 +967,24 @@ function Concierge({ onToast }: { onToast: (message: string) => void }) {
           <h3>Avise a portaria antes da chegada</h3>
           <p>Gere uma autorização e compartilhe com seu visitante.</p>
         </div>
-        <button className="primary-button" onClick={() => setVisitorModal(true)}>
+        <button
+          className="primary-button"
+          onClick={() => setVisitorModal(true)}
+        >
           Abrir interfone digital
         </button>
       </article>
       {visitorModal && (
-        <Modal title="Autorizar visitante" onClose={() => setVisitorModal(false)}>
+        <Modal
+          title="Autorizar visitante"
+          onClose={() => setVisitorModal(false)}
+        >
           <form
             className="modal-form"
             onSubmit={(event) => {
               event.preventDefault()
               setVisitorModal(false)
-              onToast('Visitante autorizado. A portaria recebeu os dados.')
+              onToast("Visitante autorizado. A portaria recebeu os dados.")
             }}
           >
             <label>
@@ -892,13 +1006,13 @@ function Concierge({ onToast }: { onToast: (message: string) => void }) {
 }
 
 function Maintenance({ onToast }: { onToast: (message: string) => void }) {
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState("")
   const [mediaAdded, setMediaAdded] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   function submit(event: FormEvent) {
     event.preventDefault()
-    onToast('Chamado #1048 enviado ao síndico com sucesso.')
-    setDescription('')
+    onToast("Chamado #1048 enviado ao síndico com sucesso.")
+    setDescription("")
     setMediaAdded(false)
   }
   return (
@@ -933,9 +1047,15 @@ function Maintenance({ onToast }: { onToast: (message: string) => void }) {
           />
           <small>{description.length}/300 caracteres</small>
         </label>
-        <button type="button" className={mediaAdded ? 'media-button added' : 'media-button'} onClick={() => setMediaAdded(!mediaAdded)}>
+        <button
+          type="button"
+          className={mediaAdded ? "media-button added" : "media-button"}
+          onClick={() => setMediaAdded(!mediaAdded)}
+        >
           <span>+</span>
-          {mediaAdded ? 'Foto anexada — remover' : 'Adicionar foto ou gravação de voz'}
+          {mediaAdded
+            ? "Foto anexada — remover"
+            : "Adicionar foto ou gravação de voz"}
         </button>
         <button className="primary-button full" type="submit">
           Enviar para o síndico
@@ -949,7 +1069,10 @@ function Maintenance({ onToast }: { onToast: (message: string) => void }) {
         <b>→</b>
       </button>
       {historyOpen && (
-        <Modal title="Histórico de chamados" onClose={() => setHistoryOpen(false)}>
+        <Modal
+          title="Histórico de chamados"
+          onClose={() => setHistoryOpen(false)}
+        >
           <div className="history-list">
             <article>
               <span className="status-chip">Em andamento</span>
@@ -1007,14 +1130,14 @@ function Settings({
             <strong>Alto contraste</strong>
             <span>Aumenta a diferença entre cores e textos</span>
           </div>
-          <i className={highContrast ? 'switch on' : 'switch'} />
+          <i className={highContrast ? "switch on" : "switch"} />
         </button>
         <button className="setting-row" onClick={onLargeText}>
           <div>
             <strong>Texto ampliado</strong>
             <span>Aumenta o tamanho dos textos da interface</span>
           </div>
-          <i className={largeText ? 'switch on' : 'switch'} />
+          <i className={largeText ? "switch on" : "switch"} />
         </button>
       </div>
 
@@ -1024,23 +1147,38 @@ function Settings({
           className="setting-link"
           onClick={onOpenDesignSystem}
           style={{
-            background: 'var(--green-soft)',
-            borderColor: 'var(--green)',
-            padding: '16px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
+            background: "var(--green-soft)",
+            borderColor: "var(--green)",
+            padding: "16px",
+            borderRadius: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <DesignSystemIcon size={24} style={{ color: 'var(--green-dark)' }} />
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <DesignSystemIcon
+              size={24}
+              style={{ color: "var(--green-dark)" }}
+            />
             <div>
-              <strong style={{ display: 'block', color: 'var(--green-dark)', textAlign: 'left' }}>
+              <strong
+                style={{
+                  display: "block",
+                  color: "var(--green-dark)",
+                  textAlign: "left",
+                }}
+              >
                 Design System &amp; Acessibilidade
               </strong>
-              <small style={{ color: '#4f5752', textAlign: 'left', display: 'block' }}>
+              <small
+                style={{
+                  color: "#4f5752",
+                  textAlign: "left",
+                  display: "block",
+                }}
+              >
                 Tokens WCAG 2.1 AA, cores e heurísticas para idosos
               </small>
             </div>
@@ -1051,29 +1189,41 @@ function Settings({
 
       <div className="settings-group">
         <p className="overline">NOTIFICAÇÕES</p>
-        <button className="setting-row" onClick={() => setNotifications(!notifications)}>
+        <button
+          className="setting-row"
+          onClick={() => setNotifications(!notifications)}
+        >
           <div>
             <strong>Avisos no dispositivo</strong>
             <span>Receba alertas importantes do condomínio</span>
           </div>
-          <i className={notifications ? 'switch on' : 'switch'} />
+          <i className={notifications ? "switch on" : "switch"} />
         </button>
-        <button className="setting-row" onClick={() => setEmailNotices(!emailNotices)}>
+        <button
+          className="setting-row"
+          onClick={() => setEmailNotices(!emailNotices)}
+        >
           <div>
             <strong>Resumo por e-mail</strong>
             <span>Receba um resumo semanal das novidades</span>
           </div>
-          <i className={emailNotices ? 'switch on' : 'switch'} />
+          <i className={emailNotices ? "switch on" : "switch"} />
         </button>
       </div>
 
       <div className="settings-group">
         <p className="overline">CONTA E SUPORTE</p>
-        <button className="setting-link" onClick={() => onToast('Seus dados cadastrais estão atualizados.')}>
+        <button
+          className="setting-link"
+          onClick={() => onToast("Seus dados cadastrais estão atualizados.")}
+        >
           <span>Meus dados cadastrais</span>
           <b>→</b>
         </button>
-        <button className="setting-link" onClick={() => onToast('Canal de suporte aberto para atendimento.')}>
+        <button
+          className="setting-link"
+          onClick={() => onToast("Canal de suporte aberto para atendimento.")}
+        >
           <span>Ajuda e suporte</span>
           <b>→</b>
         </button>
@@ -1089,36 +1239,43 @@ function Settings({
 export default function App() {
   const [authenticated, setAuthenticated] = useState(() => {
     try {
-      return localStorage.getItem('ecosis_auth') === 'true'
+      return localStorage.getItem("ecosis_auth") === "true"
     } catch {
       return false
     }
   })
   const [screen, setScreen] = useState<Screen>(() => {
     try {
-      if (typeof window !== 'undefined' && window.location.hash === '#design-system') {
-        return 'design-system'
+      if (
+        typeof window !== "undefined" &&
+        window.location.hash === "#design-system"
+      ) {
+        return "design-system"
       }
     } catch {
       // ignore
     }
-    return 'home'
+    return "home"
   })
   const [highContrast, setHighContrast] = useState(false)
   const [largeText, setLargeText] = useState(false)
   const [alerts, setAlerts] = useState(initialAlerts)
-  const [collaborativeAds, setCollaborativeAds] = useState(initialCollaborativeAds)
-  const [modal, setModal] = useState<'support' | 'panic' | 'newAlert' | null>(null)
-  const [toast, setToast] = useState('')
+  const [collaborativeAds, setCollaborativeAds] = useState(
+    initialCollaborativeAds,
+  )
+  const [modal, setModal] = useState<"support" | "panic" | "newAlert" | null>(
+    null,
+  )
+  const [toast, setToast] = useState("")
 
   function showToast(message: string) {
     setToast(message)
-    window.setTimeout(() => setToast(''), 3200)
+    window.setTimeout(() => setToast(""), 3200)
   }
 
   function handleLogin() {
     try {
-      localStorage.setItem('ecosis_auth', 'true')
+      localStorage.setItem("ecosis_auth", "true")
     } catch {
       // ignore
     }
@@ -1127,48 +1284,48 @@ export default function App() {
 
   function handleLogout() {
     try {
-      localStorage.removeItem('ecosis_auth')
+      localStorage.removeItem("ecosis_auth")
     } catch {
       // ignore
     }
     setAuthenticated(false)
-    setScreen('home')
+    setScreen("home")
   }
 
   function renderScreen() {
-    if (screen === 'alerts') {
+    if (screen === "alerts") {
       return (
         <Alerts
           alerts={alerts}
           onReadAll={() => {
             setAlerts(alerts.map((alert) => ({ ...alert, read: true })))
-            showToast('Todos os avisos foram marcados como lidos.')
+            showToast("Todos os avisos foram marcados como lidos.")
           }}
-          onNew={() => setModal('newAlert')}
+          onNew={() => setModal("newAlert")}
         />
       )
     }
-    if (screen === 'services') {
+    if (screen === "services") {
       return (
         <Services
           onToast={showToast}
-          onOpenCollaborative={() => setScreen('collaborative')}
+          onOpenCollaborative={() => setScreen("collaborative")}
         />
       )
     }
-    if (screen === 'collaborative') {
+    if (screen === "collaborative") {
       return (
         <CollaborativeServices
           ads={collaborativeAds}
           onAdd={(ad) => setCollaborativeAds([ad, ...collaborativeAds])}
-          onBack={() => setScreen('services')}
+          onBack={() => setScreen("services")}
           onToast={showToast}
         />
       )
     }
-    if (screen === 'concierge') return <Concierge onToast={showToast} />
-    if (screen === 'maintenance') return <Maintenance onToast={showToast} />
-    if (screen === 'settings') {
+    if (screen === "concierge") return <Concierge onToast={showToast} />
+    if (screen === "maintenance") return <Maintenance onToast={showToast} />
+    if (screen === "settings") {
       return (
         <Settings
           highContrast={highContrast}
@@ -1176,7 +1333,7 @@ export default function App() {
           onContrast={() => setHighContrast(!highContrast)}
           onLargeText={() => setLargeText(!largeText)}
           onToast={showToast}
-          onOpenDesignSystem={() => setScreen('design-system')}
+          onOpenDesignSystem={() => setScreen("design-system")}
           onLogout={handleLogout}
         />
       )
@@ -1184,31 +1341,38 @@ export default function App() {
     return (
       <Home
         onNavigate={setScreen}
-        onPanic={() => setModal('panic')}
+        onPanic={() => setModal("panic")}
         unread={alerts.filter((alert) => !alert.read).length}
       />
     )
   }
 
   return (
-    <div className={`${highContrast ? 'high-contrast ' : ''}${largeText ? 'large-text' : ''}`}>
-      {!authenticated && screen !== 'design-system' ? (
+    <div
+      className={`${highContrast ? "high-contrast " : ""}${
+        largeText ? "large-text" : ""
+      }`}
+    >
+      {!authenticated && screen !== "design-system" ? (
         <Login
           onLogin={handleLogin}
-          onSupport={() => setModal('support')}
-          onDesignSystem={() => setScreen('design-system')}
+          onSupport={() => setModal("support")}
+          onDesignSystem={() => setScreen("design-system")}
           highContrast={highContrast}
           largeText={largeText}
           onContrast={() => setHighContrast(!highContrast)}
           onLargeText={() => setLargeText(!largeText)}
         />
-      ) : screen === 'design-system' ? (
+      ) : screen === "design-system" ? (
         <DesignSystemView
           onBack={() => {
-            if (typeof window !== 'undefined' && window.location.hash === '#design-system') {
-              window.location.hash = ''
+            if (
+              typeof window !== "undefined" &&
+              window.location.hash === "#design-system"
+            ) {
+              window.location.hash = ""
             }
-            setScreen(authenticated ? 'settings' : 'home')
+            setScreen(authenticated ? "settings" : "home")
           }}
           highContrast={highContrast}
           largeText={largeText}
@@ -1222,17 +1386,25 @@ export default function App() {
         </main>
       )}
 
-      {modal === 'support' && (
+      {modal === "support" && (
         <Modal title="Suporte e recuperação" onClose={() => setModal(null)}>
-          <p className="modal-copy">Escolha como prefere recuperar seu acesso.</p>
-          <button className="option-button" onClick={() => showToast('Link de recuperação enviado por SMS.')}>
+          <p className="modal-copy">
+            Escolha como prefere recuperar seu acesso.
+          </p>
+          <button
+            className="option-button"
+            onClick={() => showToast("Link de recuperação enviado por SMS.")}
+          >
             <div>
               <strong>Receber por SMS</strong>
               <span>Enviaremos um link para o telefone cadastrado</span>
             </div>
             <b>→</b>
           </button>
-          <button className="option-button" onClick={() => showToast('A portaria foi notificada para ajudar.')}>
+          <button
+            className="option-button"
+            onClick={() => showToast("A portaria foi notificada para ajudar.")}
+          >
             <div>
               <strong>Falar com a portaria</strong>
               <span>Solicite ajuda para confirmar sua identidade</span>
@@ -1242,18 +1414,24 @@ export default function App() {
         </Modal>
       )}
 
-      {modal === 'panic' && (
-        <Modal title="Confirmar alerta de emergência?" onClose={() => setModal(null)}>
+      {modal === "panic" && (
+        <Modal
+          title="Confirmar alerta de emergência?"
+          onClose={() => setModal(null)}
+        >
           <div className="panic-confirm">
             <b>
               <PanicIcon size={26} />
             </b>
             <div>
               <p>
-                <strong>Você está acionando o botão de emergência da portaria.</strong>
+                <strong>
+                  Você está acionando o botão de emergência da portaria.
+                </strong>
               </p>
-              <p style={{ marginTop: '6px', fontSize: '0.85rem' }}>
-                A equipe de segurança receberá sua localização imediatamente (Bloco A · Apto 84).
+              <p style={{ marginTop: "6px", fontSize: "0.85rem" }}>
+                A equipe de segurança receberá sua localização imediatamente
+                (Bloco A · Apto 84).
               </p>
             </div>
           </div>
@@ -1263,10 +1441,16 @@ export default function App() {
             </button>
             <button
               className="danger-button"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
               onClick={() => {
                 setModal(null)
-                showToast('🚨 Alerta enviado! A portaria foi notificada e já está atendendo.')
+                showToast(
+                  "🚨 Alerta enviado! A portaria foi notificada e já está atendendo.",
+                )
               }}
             >
               <PanicIcon size={18} />
@@ -1276,14 +1460,14 @@ export default function App() {
         </Modal>
       )}
 
-      {modal === 'newAlert' && (
+      {modal === "newAlert" && (
         <Modal title="Novo alerta ao síndico" onClose={() => setModal(null)}>
           <form
             className="modal-form"
             onSubmit={(event) => {
               event.preventDefault()
               setModal(null)
-              showToast('Alerta enviado ao síndico.')
+              showToast("Alerta enviado ao síndico.")
             }}
           >
             <label>

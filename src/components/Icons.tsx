@@ -1,10 +1,10 @@
-import { SVGProps } from 'react'
+import { SVGProps } from "react"
 
 export interface IconProps extends SVGProps<SVGSVGElement> {
   size?: number
 }
 
-export function HomeIcon({ size = 24, className = '', ...props }: IconProps) {
+export function HomeIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -24,7 +24,7 @@ export function HomeIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function AlertsIcon({ size = 24, className = '', ...props }: IconProps) {
+export function AlertsIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -45,7 +45,11 @@ export function AlertsIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function ServicesIcon({ size = 24, className = '', ...props }: IconProps) {
+export function ServicesIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -68,7 +72,11 @@ export function ServicesIcon({ size = 24, className = '', ...props }: IconProps)
   )
 }
 
-export function ConciergeIcon({ size = 24, className = '', ...props }: IconProps) {
+export function ConciergeIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -90,7 +98,11 @@ export function ConciergeIcon({ size = 24, className = '', ...props }: IconProps
   )
 }
 
-export function MaintenanceIcon({ size = 24, className = '', ...props }: IconProps) {
+export function MaintenanceIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -110,7 +122,11 @@ export function MaintenanceIcon({ size = 24, className = '', ...props }: IconPro
   )
 }
 
-export function SettingsIcon({ size = 24, className = '', ...props }: IconProps) {
+export function SettingsIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -131,7 +147,7 @@ export function SettingsIcon({ size = 24, className = '', ...props }: IconProps)
   )
 }
 
-export function PanicIcon({ size = 24, className = '', ...props }: IconProps) {
+export function PanicIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -153,7 +169,11 @@ export function PanicIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function SpeakerIcon({ size = 24, className = '', ...props }: IconProps) {
+export function SpeakerIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -175,7 +195,11 @@ export function SpeakerIcon({ size = 24, className = '', ...props }: IconProps) 
   )
 }
 
-export function DesignSystemIcon({ size = 24, className = '', ...props }: IconProps) {
+export function DesignSystemIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -198,7 +222,7 @@ export function DesignSystemIcon({ size = 24, className = '', ...props }: IconPr
   )
 }
 
-export function BackIcon({ size = 24, className = '', ...props }: IconProps) {
+export function BackIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -218,7 +242,7 @@ export function BackIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function CheckIcon({ size = 24, className = '', ...props }: IconProps) {
+export function CheckIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -238,7 +262,7 @@ export function CheckIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function SearchIcon({ size = 24, className = '', ...props }: IconProps) {
+export function SearchIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -259,7 +283,7 @@ export function SearchIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function PlusIcon({ size = 24, className = '', ...props }: IconProps) {
+export function PlusIcon({ size = 24, className = "", ...props }: IconProps) {
   return (
     <svg
       width={size}
@@ -280,7 +304,11 @@ export function PlusIcon({ size = 24, className = '', ...props }: IconProps) {
   )
 }
 
-export function PackageIcon({ size = 24, className = '', ...props }: IconProps) {
+export function PackageIcon({
+  size = 24,
+  className = "",
+  ...props
+}: IconProps) {
   return (
     <svg
       width={size}
