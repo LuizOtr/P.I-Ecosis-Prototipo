@@ -12,6 +12,7 @@ import {
   PanicIcon,
   PlusIcon,
   SearchIcon,
+  ServicesIcon,
   SettingsIcon,
   SpeakerIcon,
 } from "./components/Icons"
