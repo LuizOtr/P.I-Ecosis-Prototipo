@@ -34,22 +34,35 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Trava de segurança: o Clarity é a única telemetria do protótipo. Se um
-      # refactor remover o snippet do <head>, o deploy para aqui em vez de
-      # publicar uma versão que não coleta nada.
-      - name: Verify Clarity tracking code in build output
+      # Trava de seguranca: Clarity e GTM sao a unica telemetria do prototipo.
+      # Se um refactor remover um snippet do <head>, ou deixar o ID do codigo
+      # diferente do ID do HTML, o deploy para aqui em vez de publicar uma
+      # versao que nao coleta nada ou que coleta no lugar errado.
+      - name: Verify analytics tags in build output
         run: |
           set -euo pipefail
           id_src=$(grep -oP '(?<=CLARITY_PROJECT_ID = ")[a-z0-9]+' src/lib/clarity.ts)
           id_dist=$(grep -oP '(?<=clarity", "script", ")[a-z0-9]+' dist/index.html || true)
-          echo "ID em src/lib/clarity.ts: ${id_src:-<vazio>}"
-          echo "ID em dist/index.html:    ${id_dist:-<vazio>}"
+          echo "Clarity em src/lib/clarity.ts: ${id_src:-<vazio>}"
+          echo "Clarity em dist/index.html:    ${id_dist:-<vazio>}"
           if [ -z "$id_dist" ]; then
-            echo "::error::Código do Clarity ausente em dist/index.html — a coleta de métricas seria perdida."
+            echo "::error::Codigo do Clarity ausente em dist/index.html."
             exit 1
           fi
           if [ "$id_src" != "$id_dist" ]; then
-            echo "::error::ID do Clarity divergente: src/lib/clarity.ts=$id_src, dist/index.html=$id_dist."
+            echo "::error::ID do Clarity divergente: clarity.ts=$id_src, index.html=$id_dist."
+            exit 1
+          fi
+          gtm_src=$(grep -oP '(?<=GTM_CONTAINER_ID = ")GTM-[A-Z0-9]+' src/lib/analytics.ts || true)
+          gtm_dist=$(grep -oP 'gtm\.js\?id=GTM-[A-Z0-9]+' dist/index.html | head -1 | sed 's/.*id=//' || true)
+          echo "GTM em src/lib/analytics.ts: ${gtm_src:-<vazio>}"
+          echo "GTM em dist/index.html:      ${gtm_dist:-<vazio>}"
+          if [ -z "$gtm_dist" ]; then
+            echo "::error::Snippet do Google Tag Manager ausente em dist/index.html."
+            exit 1
+          fi
+          if [ "$gtm_src" != "$gtm_dist" ]; then
+            echo "::error::Container do GTM divergente: analytics.ts=$gtm_src, index.html=$gtm_dist."
             exit 1
           fi
 

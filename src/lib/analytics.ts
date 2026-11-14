@@ -5,9 +5,14 @@
  * uma tela ou ação nova é instrumentada, Clarity e Google Analytics recebem o
  * mesmo sinal — sem instrumentação duplicada e sem os dois divergirem.
  *
- * Google Analytics 4 usa gtag.js direto com o Measurement ID. Google Tag
- * Manager não é necessário neste projeto: é uma camada de gestão de tags, e
- * aqui não há time trocando tags sem passar pelo código.
+ * Google Analytics entra por um contêiner do Google Tag Manager
+ * (`GTM-PDBMKH29`). O carregador fica em `index.html`, junto do Clarity e pelo
+ * mesmo motivo: precisa rodar mesmo quando o bundle React quebra.
+ *
+ * ATENÇÃO — o contêiner sozinho não coleta nada. Ele é um executor vazio: o
+ * que envia dado para o GA4 são as tags configuradas dentro dele. Sem um
+ * "Google tag" apontando para a propriedade do GA4, `gtm.js` carrega e não
+ * registra nada. O passo a passo está no README.
  */
 
 import {
@@ -27,38 +32,36 @@ declare global {
 }
 
 /**
- * Measurement ID do GA4 — o "G-" que aparece em GA4 › Administrador › Fluxos
- * de dados › (fluxo web) › ID da métrica.
- *
- * Enquanto estiver vazio, a integração fica inerte: nenhum script é baixado,
- * nenhuma requisição falha e nada aparece no console. Basta colar o ID aqui
- * para ativar.
+ * Contêiner do Google Tag Manager. Precisa ser idêntico ao do snippet em
+ * `index.html` — o workflow de deploy falha quando divergem.
  */
-export const GA_MEASUREMENT_ID = ""
+export const GTM_CONTAINER_ID = "GTM-PDBMKH29"
 
-const GA_ID_PATTERN = /^G-[A-Z0-9]{6,}$/
+const GTM_ID_PATTERN = /^GTM-[A-Z0-9]{4,}$/
 const MAX_USER_PROPERTY_LENGTH = 36
 
 let currentScreen = "desconhecida"
 
-export function isGaConfigured(): boolean {
-  return GA_ID_PATTERN.test(GA_MEASUREMENT_ID)
+export function isGtmConfigured(): boolean {
+  return GTM_ID_PATTERN.test(GTM_CONTAINER_ID)
 }
 
+/**
+ * Empurra um comando para o dataLayer. O contêiner lê daqui; se o gtm.js foi
+ * bloqueado, os comandos ficam enfileirados sem lançar exceção e sem perder
+ * o que foi registrado antes do bloqueio ser detectado.
+ */
 function gtag(...args: unknown[]): void {
   if (typeof window === "undefined") return
-  if (typeof window.gtag !== "function") return
+  ensureGtagStub()
   try {
-    window.gtag(...args)
+    window.gtag!(...args)
   } catch {
     // telemetria nunca derruba o app
   }
 }
 
-/**
- * Fila local enquanto o gtag.js não chega. Sem isso, os primeiros eventos
- * (justamente o page_view inicial) seriam perdidos na janela de carregamento.
- */
+/** O stub do snippet inline do index.html costuma bastar; aqui é rede de segurança. */
 function ensureGtagStub(): void {
   window.dataLayer = window.dataLayer || []
   if (typeof window.gtag !== "function") {
@@ -66,16 +69,6 @@ function ensureGtagStub(): void {
       window.dataLayer!.push(args)
     }
   }
-}
-
-function loadGtag(): void {
-  if (typeof document === "undefined") return
-  if (document.getElementById("ga4-gtag")) return
-  const script = document.createElement("script")
-  script.id = "ga4-gtag"
-  script.async = true
-  script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_MEASUREMENT_ID
-  document.head.appendChild(script)
 }
 
 /** Caminho virtual por tela: o protótipo não muda de URL de verdade. */
@@ -90,26 +83,26 @@ function screenPath(screen: string): string {
 export function initAnalytics(): void {
   bootstrapClarity()
 
-  if (!isGaConfigured()) {
-    addDiagnosticLine("ga4: não configurado")
+  if (!isGtmConfigured()) {
+    addDiagnosticLine("gtm: não configurado")
     return
   }
 
   ensureGtagStub()
-  loadGtag()
-  gtag("js", new Date())
-  // send_page_view: false porque cada tela emite seu próprio page_view.
-  // Sem isso, a entrada inicial em "/" seria contada duas vezes.
-  gtag("config", GA_MEASUREMENT_ID, { send_page_view: false })
-  addDiagnosticLine("ga4: " + GA_MEASUREMENT_ID + " | hits " + String(window.dataLayer?.length ?? 0))
+  addDiagnosticLine(
+    "gtm: " + GTM_CONTAINER_ID + " | fila " + String(window.dataLayer?.length ?? 0),
+  )
 }
 
 export function trackScreen(screen: string, label: string): void {
   currentScreen = screen
   clarityTrackScreen(screen, label)
 
-  if (!isGaConfigured()) return
+  if (!isGtmConfigured()) return
   const path = screenPath(screen)
+  // Nome `page_view` de propósito: é o evento que o GA4 trata como visualização
+  // de página, então uma tag de evento no contêiner já resolve o relatório de
+  // páginas sem inventar métrica paralela.
   gtag("event", "page_view", {
     page_title: label,
     page_path: path,
@@ -121,14 +114,14 @@ export function trackScreen(screen: string, label: string): void {
 export function trackEvent(name: string): void {
   clarityTrackEvent(name)
 
-  if (!isGaConfigured()) return
+  if (!isGtmConfigured()) return
   gtag("event", name, { screen: currentScreen })
 }
 
 export function setTag(key: string, value: string | string[]): void {
   claritySetTag(key, value)
 
-  if (!isGaConfigured()) return
+  if (!isGtmConfigured()) return
   const flat = Array.isArray(value) ? value.join(",") : value
   gtag("set", "user_properties", { [key]: flat.slice(0, MAX_USER_PROPERTY_LENGTH) })
 }
@@ -136,7 +129,7 @@ export function setTag(key: string, value: string | string[]): void {
 export function trackFatalError(error: Error): void {
   clarityTrackFatalError(error)
 
-  if (!isGaConfigured()) return
+  if (!isGtmConfigured()) return
   // Só o tipo do erro vai para o GA; a mensagem pode carregar dado do usuário.
   gtag("event", "react_error_boundary", { error_name: error.name })
 }

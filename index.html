@@ -37,8 +37,32 @@
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
       })(window, document, "clarity", "script", "zdl7ay26wo");
     </script>
+
+    <!--
+      Google Tag Manager — contêiner GTM-PDBMKH29.
+      O mesmo ID está em `src/lib/analytics.ts` (GTM_CONTAINER_ID).
+
+      Contêiner sozinho NÃO coleta dado: ele apenas executa as tags
+      configuradas dentro dele. É preciso um "Google tag" apontando para a
+      propriedade do GA4, publicado neste contêiner. Passo a passo no README.
+    -->
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-PDBMKH29"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    </script>
   </head>
   <body>
+    <!-- Fallback do GTM para navegador sem JavaScript -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-PDBMKH29"
+        height="0"
+        width="0"
+        style="display: none; visibility: hidden"
+      ></iframe
+    ></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

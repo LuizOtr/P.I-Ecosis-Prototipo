@@ -104,21 +104,26 @@ O workflow de deploy falha se os dois divergirem ou se o snippet sumir do build,
 
 Segunda fonte de métricas. O GA4 traz número agregado (sessões, usuários, eventos, aquisição) e retenção de 14 meses, contra os 30 dias do Clarity. Não substitui o Clarity: mapa de calor e gravação de sessão continuam sendo dele. As duas ferramentas respondem perguntas diferentes.
 
-**Estado: inerte, aguardando o Measurement ID.** Cole o `G-...` em `src/lib/analytics.ts` na constante `GA_MEASUREMENT_ID`. Enquanto estiver vazio nenhum script é baixado, nenhuma requisição falha e nada aparece no console. Onde achar: GA4 › Administrador › Fluxos de dados › (fluxo web) › ID da métrica.
+**Instalado: contêiner `GTM-PDBMKH29`.** O snippet vive em `index.html` (junto do Clarity, pelo mesmo motivo: precisa rodar mesmo quando o bundle quebra) e o ID fica em `src/lib/analytics.ts`. O deploy falha se os dois divergirem.
+
+**O contêiner sozinho não coleta nada.** Ele é um executor: quem envia dado ao GA4 são as tags configuradas dentro dele. Com o contêiner publicado e nenhuma tag dentro, o `gtm.js` carrega, o dataLayer enche e o GA4 continua zerado. Três passos no painel resolvem:
+
+1. **Google tag.** Em tagmanager.google.com › Tags › Novo › Google Tag, informe o ID da propriedade do GA4 (o `G-...`, em GA4 › Administrador › Fluxos de dados) e dispare em *Initialization - All Initialization Events*. Publique o contêiner.
+2. **Tag de evento das telas.** Crie uma tag GA4 Event com nome de evento `page_view` e gatilho de *Custom Event* igual a `page_view`. Sem ela, a troca de tela não chega ao GA4 e o relatório de páginas fica reduzido à entrada inicial.
+3. **Desligue a visualização automática** no Google tag. Cada tela já emite a sua, e deixar as duas ligadas conta a primeira tela duas vezes.
 
 ### Como está ligado
 
-- `src/lib/analytics.ts` é a fachada única. O app importa daqui e cada sinal sai para o Clarity **e** para o GA4, então instrumentação não duplica e os dois nunca divergem.
-- gtag.js direto, sem Google Tag Manager. GTM é camada de gestão de tags para quem troca tag sem passar pelo código; num site estático tocado por uma pessoa, só acrescenta peso e um ponto de falha.
-- `send_page_view: false` no `config`, porque cada tela emite o próprio `page_view`. Sem isso a entrada em `/` seria contada duas vezes.
-- Cada tela vira caminho virtual via `page_path`: `/P.I-Ecosis-Prototipo/home`, `.../alerts`, `.../settings`. A URL real não muda neste protótipo, então sem isso o relatório de páginas mostraria só uma linha.
-- Eventos e tags carregam o parâmetro `screen`.
-- A fila local (`window.dataLayer`) existe para não perder o `page_view` inicial na janela de carregamento do gtag.js.
+- `src/lib/analytics.ts` é a fachada única. O app importa daqui e cada sinal sai para o Clarity **e** para o dataLayer do GTM, então instrumentação não duplica e os dois nunca divergem.
+- Cada tela vira caminho virtual via `page_path`: `/P.I-Ecosis-Prototipo/home`, `.../alerts`, `.../settings`. A URL real não muda neste protótipo, então sem isso o relatório mostraria uma linha só.
+- O evento se chama `page_view` de propósito: é o nome que o GA4 trata como visualização de página, então uma tag de evento resolve o relatório sem inventar métrica paralela.
+- Os nomes de evento estão em snake_case minúsculo (`modal_open_new_alert`), como o GA4 recomenda.
+- Eventos e tags carregam o parâmetro `screen`, para cruzar ação com tela.
 
 ### Dois ajustes que só dão para fazer no painel
 
-1. **Retenção de dados.** O padrão do GA4 é 2 meses. Em GA4 › Administrador › Retenção de dados, mude para 14 meses. É o principal motivo de existir essa segunda fonte para um trabalho acadêmico.
-2. **Dimensões personalizadas.** O parâmetro `screen` só aparece em relatório depois de registrado em Administrador › Dimensões personalizadas (escopo de evento, nome `screen`). O mesmo vale para `auth_method` e `user_role`, que vão como propriedade de usuário.
+1. **Retenção de dados.** O padrão do GA4 é 2 meses. Em GA4 › Administrador › Retenção de dados, mude para 14 meses. É o principal motivo de existir essa segunda fonte num trabalho acadêmico.
+2. **Dimensões personalizadas.** O parâmetro `screen` só aparece em relatório depois de registrado em Administrador › Dimensões personalizadas (escopo de evento, nome `screen`).
 
 ### Bloqueadores
 
@@ -126,9 +131,9 @@ GA4 apanha dos mesmos bloqueadores do Clarity: `||google-analytics.com^` está n
 
 ### Verificar
 
-- Realtime do GA4: deve acusar 1 usuário ativo ao abrir a página.
-- Badge `?clarity-debug`: mostra o ID e quantos hits entraram na fila (`hits 2` = `js` + `config`).
-- DevTools › Network, filtro `collect`.
+- DevTools › Network: `gtm.js?id=GTM-PDBMKH29` deve carregar com 200. Depois, filtro `collect` mostra as requisições ao GA4.
+- Badge `?clarity-debug`: mostra o contêiner e quantos comandos estão na fila (`fila 1` = o `js` do snippet).
+- Realtime do GA4: só acusa usuário ativo depois que o Google tag existir e o contêiner estiver publicado.
 
 ### LGPD
 
