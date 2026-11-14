@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
+import { bootstrapClarity, trackFatalError } from "./lib/clarity"
 import "./index.css"
 
 interface ErrorBoundaryProps {
@@ -24,6 +25,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("EcoSis ErrorBoundary:", error, errorInfo)
+    trackFatalError(error)
   }
 
   render() {
@@ -127,6 +129,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return this.props.children
   }
 }
+
+bootstrapClarity()
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

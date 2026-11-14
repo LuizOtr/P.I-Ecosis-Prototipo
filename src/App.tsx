@@ -1,4 +1,4 @@
-import { ComponentType, FormEvent, ReactNode, useState } from "react"
+import { ComponentType, FormEvent, ReactNode, useEffect, useState } from "react"
 import {
   AlertsIcon,
   BackIcon,
@@ -17,8 +17,25 @@ import {
   SpeakerIcon,
 } from "./components/Icons"
 import { DesignSystemView } from "./components/DesignSystemView"
+import { setTag, trackEvent, trackScreen } from "./lib/clarity"
 
 type Screen = "home" | "alerts" | "services" | "collaborative" | "concierge" | "maintenance" | "settings" | "design-system"
+
+type TrackedScreen = Screen | "login"
+
+const screenLabels: Record<TrackedScreen, string> = {
+  login: "Login",
+  home: "Início",
+  alerts: "Avisos",
+  services: "Mural",
+  collaborative: "Mural colaborativo",
+  concierge: "Portaria",
+  maintenance: "Chamados",
+  settings: "Ajustes",
+  "design-system": "Design System",
+}
+
+type LoginMethod = "quick" | "prefilled" | "credentials"
 
 type CollaborativeAd = {
   id: number
@@ -224,7 +241,7 @@ function Login({
   onContrast,
   onLargeText,
 }: {
-  onLogin: () => void
+  onLogin: (method: LoginMethod, role?: string) => void
   onSupport: () => void
   onDesignSystem: () => void
   highContrast: boolean
@@ -250,7 +267,7 @@ function Login({
       return
     }
     setError("")
-    onLogin()
+    onLogin("credentials", role)
   }
 
   return (
@@ -282,7 +299,7 @@ function Login({
           <button
             type="button"
             className="quick-enter-button"
-            onClick={onLogin}
+            onClick={() => onLogin("quick")}
           >
             <span>⚡</span> Explorar protótipo sem login <span>→</span>
           </button>
@@ -339,6 +356,7 @@ function Login({
               onChange={(event) => setEmail(event.target.value)}
               placeholder="nome@email.com"
               autoComplete="email"
+              data-clarity-mask="true"
             />
           </label>
           <label>
@@ -349,6 +367,7 @@ function Login({
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
+                data-clarity-mask="true"
               />
               <button
                 type="button"
@@ -366,7 +385,7 @@ function Login({
             type="button"
             className="secondary-button full"
             style={{ marginTop: "10px" }}
-            onClick={onLogin}
+            onClick={() => onLogin("prefilled")}
           >
             Entrar com dados pré-preenchidos
           </button>
@@ -1269,17 +1288,78 @@ export default function App() {
   )
   const [toast, setToast] = useState("")
 
+  // O protótipo troca de tela por estado do React, sem mexer na URL. Sem este
+  // sinal, o Clarity enxerga uma única página e perde a navegação inteira.
+  const trackedScreen: TrackedScreen =
+    !authenticated && screen !== "design-system" ? "login" : screen
+
+  useEffect(() => {
+    trackScreen(trackedScreen, screenLabels[trackedScreen])
+  }, [trackedScreen])
+
   function showToast(message: string) {
     setToast(message)
     window.setTimeout(() => setToast(""), 3200)
   }
 
-  function handleLogin() {
+  function openModal(kind: "support" | "panic" | "newAlert") {
+    trackEvent("modal_open_" + kind)
+    setModal(kind)
+  }
+
+  function toggleContrast() {
+    const next = !highContrast
+    setHighContrast(next)
+    setTag("high_contrast", String(next))
+    trackEvent(next ? "contrast_on" : "contrast_off")
+  }
+
+  function toggleLargeText() {
+    const next = !largeText
+    setLargeText(next)
+    setTag("large_text", String(next))
+    trackEvent(next ? "large_text_on" : "large_text_off")
+  }
+
+  function openDesignSystem() {
+    trackEvent("design_system_open")
+    try {
+      // replaceState (e nao pushState) mantem o botao voltar como estava e
+      // deixa a URL coerente com o estado inicial, que ja le este hash.
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search + "#design-system",
+      )
+    } catch {
+      // ignore
+    }
+    setScreen("design-system")
+  }
+
+  function closeDesignSystem() {
+    try {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      )
+    } catch {
+      // ignore
+    }
+    setScreen(authenticated ? "settings" : "home")
+  }
+
+  function handleLogin(method: LoginMethod, role?: string) {
     try {
       localStorage.setItem("ecosis_auth", "true")
     } catch {
       // ignore
     }
+    setTag("auth_method", method)
+    if (role) setTag("user_role", role)
+    setTag("authenticated", "true")
+    trackEvent("login_" + method)
     setAuthenticated(true)
   }
 
@@ -1289,6 +1369,8 @@ export default function App() {
     } catch {
       // ignore
     }
+    setTag("authenticated", "false")
+    trackEvent("logout")
     setAuthenticated(false)
     setScreen("home")
   }
@@ -1300,9 +1382,10 @@ export default function App() {
           alerts={alerts}
           onReadAll={() => {
             setAlerts(alerts.map((alert) => ({ ...alert, read: true })))
+            trackEvent("alerts_mark_all_read")
             showToast("Todos os avisos foram marcados como lidos.")
           }}
-          onNew={() => setModal("newAlert")}
+          onNew={() => openModal("newAlert")}
         />
       )
     }
@@ -1318,7 +1401,10 @@ export default function App() {
       return (
         <CollaborativeServices
           ads={collaborativeAds}
-          onAdd={(ad) => setCollaborativeAds([ad, ...collaborativeAds])}
+          onAdd={(ad) => {
+            setCollaborativeAds([ad, ...collaborativeAds])
+            trackEvent("collab_ad_created")
+          }}
           onBack={() => setScreen("services")}
           onToast={showToast}
         />
@@ -1331,10 +1417,10 @@ export default function App() {
         <Settings
           highContrast={highContrast}
           largeText={largeText}
-          onContrast={() => setHighContrast(!highContrast)}
-          onLargeText={() => setLargeText(!largeText)}
+          onContrast={toggleContrast}
+          onLargeText={toggleLargeText}
           onToast={showToast}
-          onOpenDesignSystem={() => setScreen("design-system")}
+          onOpenDesignSystem={openDesignSystem}
           onLogout={handleLogout}
         />
       )
@@ -1342,7 +1428,7 @@ export default function App() {
     return (
       <Home
         onNavigate={setScreen}
-        onPanic={() => setModal("panic")}
+        onPanic={() => openModal("panic")}
         unread={alerts.filter((alert) => !alert.read).length}
       />
     )
@@ -1357,28 +1443,20 @@ export default function App() {
       {!authenticated && screen !== "design-system" ? (
         <Login
           onLogin={handleLogin}
-          onSupport={() => setModal("support")}
-          onDesignSystem={() => setScreen("design-system")}
+          onSupport={() => openModal("support")}
+          onDesignSystem={openDesignSystem}
           highContrast={highContrast}
           largeText={largeText}
-          onContrast={() => setHighContrast(!highContrast)}
-          onLargeText={() => setLargeText(!largeText)}
+          onContrast={toggleContrast}
+          onLargeText={toggleLargeText}
         />
       ) : screen === "design-system" ? (
         <DesignSystemView
-          onBack={() => {
-            if (
-              typeof window !== "undefined" &&
-              window.location.hash === "#design-system"
-            ) {
-              window.location.hash = ""
-            }
-            setScreen(authenticated ? "settings" : "home")
-          }}
+          onBack={closeDesignSystem}
           highContrast={highContrast}
           largeText={largeText}
-          onContrast={() => setHighContrast(!highContrast)}
-          onLargeText={() => setLargeText(!largeText)}
+          onContrast={toggleContrast}
+          onLargeText={toggleLargeText}
         />
       ) : (
         <main className="app-shell">
@@ -1394,7 +1472,10 @@ export default function App() {
           </p>
           <button
             className="option-button"
-            onClick={() => showToast("Link de recuperação enviado por SMS.")}
+            onClick={() => {
+              trackEvent("support_recovery_sms")
+              showToast("Link de recuperação enviado por SMS.")
+            }}
           >
             <div>
               <strong>Receber por SMS</strong>
@@ -1404,7 +1485,10 @@ export default function App() {
           </button>
           <button
             className="option-button"
-            onClick={() => showToast("A portaria foi notificada para ajudar.")}
+            onClick={() => {
+              trackEvent("support_recovery_concierge")
+              showToast("A portaria foi notificada para ajudar.")
+            }}
           >
             <div>
               <strong>Falar com a portaria</strong>
@@ -1449,6 +1533,7 @@ export default function App() {
               }}
               onClick={() => {
                 setModal(null)
+                trackEvent("panic_confirmed")
                 showToast(
                   "🚨 Alerta enviado! A portaria foi notificada e já está atendendo.",
                 )
@@ -1468,6 +1553,7 @@ export default function App() {
             onSubmit={(event) => {
               event.preventDefault()
               setModal(null)
+              trackEvent("alert_sent_to_manager")
               showToast("Alerta enviado ao síndico.")
             }}
           >

@@ -14,6 +14,7 @@ import {
   SettingsIcon,
   SpeakerIcon,
 } from "./Icons"
+import { CLARITY_PROJECT_ID } from "../lib/clarity"
 
 interface DesignSystemProps {
   onBack: () => void
@@ -501,7 +502,7 @@ export function DesignSystemView({
       {/* Seção 6: Telemetria & Microsoft Clarity */}
       <section className="ds-section">
         <span className="ds-overline">MÉTRICAS DE EXPERIÊNCIA</span>
-        <h2>Telemetria com Microsoft Clarity (ID: wqjiis2n1a)</h2>
+        <h2>Telemetria com Microsoft Clarity (ID: {CLARITY_PROJECT_ID})</h2>
         <div className="ds-clarity-card">
           <div className="ds-clarity-badge">ANÁLISE DE USABILIDADE</div>
           <h3>Validação de Campo com Moradores Idosos</h3>

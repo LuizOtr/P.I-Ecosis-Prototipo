@@ -35,3 +35,15 @@ A cada `push` na branch `main`, o workflow `.github/workflows/deploy.yml` compil
 Este projeto utiliza **Tailwind CSS v4** por meio do plugin `@tailwindcss/vite` configurado em `vite.config.ts`. O arquivo `src/index.css` importa o Tailwind com `@import 'tailwindcss';`. Utilize classes utilitárias do Tailwind diretamente no JSX e adicione regras de estilo global ou temas em `src/index.css`. Não é necessário arquivo de configuração `tailwind.config.js` nem PostCSS.
 
 Como `src/main.tsx` importa `src/index.css`, a configuração global de fontes pertence a `src/index.css`. Mantenha as declarações `@import` no início do CSS, seguidas de `@font-face` e definições de família de fontes.
+
+## Telemetria (Microsoft Clarity)
+
+Documentação completa em `README.md`. Regras para não quebrar a coleta:
+
+- O snippet do Clarity vive em `index.html`, dentro do `<head>`. Não mova para o bundle React: ele precisa rodar mesmo quando o app quebra.
+- O ID do projeto aparece em dois lugares e precisa ser idêntico: `index.html` e a constante `CLARITY_PROJECT_ID` em `src/lib/clarity.ts`. O workflow de deploy falha se divergirem.
+- O rastreamento de telas é automático: basta declarar a nova tela no tipo `Screen` e no mapa `screenLabels` de `src/App.tsx`. O `useEffect` emite `screen_view_<tela>`.
+- Para ações novas, importe `trackEvent` e `setTag` de `src/lib/clarity`. Nunca chame `window.clarity` direto — o wrapper protege contra o script bloqueado.
+- Não remova `data-clarity-mask` dos campos de e-mail e senha.
+- Não chame `grantConsent()` automaticamente. Consentimento só depois de uma escolha real do usuário.
+- Detecção de bloqueio usa `window.clarity.v` (versão) ou o retorno Promise de `identify`. Não use Resource Timing: dá falso positivo.

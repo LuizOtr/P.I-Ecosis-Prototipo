@@ -10,12 +10,30 @@
     />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+    <!--
+      Microsoft Clarity — analítica comportamental (mapas de calor, gravações de
+      sessão e eventos). Documentação: https://learn.microsoft.com/clarity/
+
+      PROJETO: zdl7ay26wo
+      O mesmo ID está em `src/lib/clarity.ts` (CLARITY_PROJECT_ID). Ao trocar de
+      projeto no dashboard do Clarity, atualize os dois arquivos.
+
+      Por que o script fica aqui, e não no bundle React: ele precisa rodar mesmo
+      quando o app quebra. Assim a gravação captura a tela de erro em vez de
+      perder a sessão.
+
+      O snippet oficial já trata bloqueadores: se `clarity.ms` não carregar, as
+      chamadas de API ficam enfileiradas sem lançar exceção.
+    -->
+    <link rel="preconnect" href="https://www.clarity.ms" crossorigin />
+    <link rel="dns-prefetch" href="https://www.clarity.ms" />
     <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
           c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
           t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "wqjiis2n1a");
+      })(window, document, "clarity", "script", "zdl7ay26wo");
     </script>
   </head>
   <body>

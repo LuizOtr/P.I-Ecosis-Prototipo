@@ -34,6 +34,25 @@ jobs:
       - name: Build project
         run: npm run build
 
+      # Trava de segurança: o Clarity é a única telemetria do protótipo. Se um
+      # refactor remover o snippet do <head>, o deploy para aqui em vez de
+      # publicar uma versão que não coleta nada.
+      - name: Verify Clarity tracking code in build output
+        run: |
+          set -euo pipefail
+          id_src=$(grep -oP '(?<=CLARITY_PROJECT_ID = ")[a-z0-9]+' src/lib/clarity.ts)
+          id_dist=$(grep -oP '(?<=clarity", "script", ")[a-z0-9]+' dist/index.html || true)
+          echo "ID em src/lib/clarity.ts: ${id_src:-<vazio>}"
+          echo "ID em dist/index.html:    ${id_dist:-<vazio>}"
+          if [ -z "$id_dist" ]; then
+            echo "::error::Código do Clarity ausente em dist/index.html — a coleta de métricas seria perdida."
+            exit 1
+          fi
+          if [ "$id_src" != "$id_dist" ]; then
+            echo "::error::ID do Clarity divergente: src/lib/clarity.ts=$id_src, dist/index.html=$id_dist."
+            exit 1
+          fi
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
