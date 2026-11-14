@@ -17,7 +17,7 @@ import {
   SpeakerIcon,
 } from "./components/Icons"
 import { DesignSystemView } from "./components/DesignSystemView"
-import { setTag, trackEvent, trackScreen } from "./lib/clarity"
+import { setTag, trackEvent, trackScreen } from "./lib/analytics"
 
 type Screen = "home" | "alerts" | "services" | "collaborative" | "concierge" | "maintenance" | "settings" | "design-system"
 
@@ -1303,7 +1303,8 @@ export default function App() {
   }
 
   function openModal(kind: "support" | "panic" | "newAlert") {
-    trackEvent("modal_open_" + kind)
+    const eventNames = { support: "support", panic: "panic", newAlert: "new_alert" }
+    trackEvent("modal_open_" + eventNames[kind])
     setModal(kind)
   }
 

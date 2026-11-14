@@ -47,6 +47,13 @@ let cachedUserId: string | null = null
 let cachedSessionId: string | null = null
 let errorTrackingInstalled = false
 
+const diagnostics: string[] = []
+
+/** Linha extra no badge de ?clarity-debug (ex.: status do GA4). */
+export function addDiagnosticLine(line: string): void {
+  diagnostics.push(line)
+}
+
 function randomId(): string {
   try {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -304,6 +311,7 @@ function renderDebugBadge(status: ClarityStatus): void {
     status === "blocked"
       ? "Bloqueador de anúncios, ETP estrito ou DNS filtrado impedem a coleta neste navegador."
       : "",
+    ...diagnostics,
   ]
     .filter(Boolean)
     .join("\n")

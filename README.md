@@ -100,6 +100,42 @@ O workflow de deploy falha se os dois divergirem ou se o snippet sumir do build,
 
 ---
 
+## Google Analytics 4
+
+Segunda fonte de métricas. O GA4 traz número agregado (sessões, usuários, eventos, aquisição) e retenção de 14 meses, contra os 30 dias do Clarity. Não substitui o Clarity: mapa de calor e gravação de sessão continuam sendo dele. As duas ferramentas respondem perguntas diferentes.
+
+**Estado: inerte, aguardando o Measurement ID.** Cole o `G-...` em `src/lib/analytics.ts` na constante `GA_MEASUREMENT_ID`. Enquanto estiver vazio nenhum script é baixado, nenhuma requisição falha e nada aparece no console. Onde achar: GA4 › Administrador › Fluxos de dados › (fluxo web) › ID da métrica.
+
+### Como está ligado
+
+- `src/lib/analytics.ts` é a fachada única. O app importa daqui e cada sinal sai para o Clarity **e** para o GA4, então instrumentação não duplica e os dois nunca divergem.
+- gtag.js direto, sem Google Tag Manager. GTM é camada de gestão de tags para quem troca tag sem passar pelo código; num site estático tocado por uma pessoa, só acrescenta peso e um ponto de falha.
+- `send_page_view: false` no `config`, porque cada tela emite o próprio `page_view`. Sem isso a entrada em `/` seria contada duas vezes.
+- Cada tela vira caminho virtual via `page_path`: `/P.I-Ecosis-Prototipo/home`, `.../alerts`, `.../settings`. A URL real não muda neste protótipo, então sem isso o relatório de páginas mostraria só uma linha.
+- Eventos e tags carregam o parâmetro `screen`.
+- A fila local (`window.dataLayer`) existe para não perder o `page_view` inicial na janela de carregamento do gtag.js.
+
+### Dois ajustes que só dão para fazer no painel
+
+1. **Retenção de dados.** O padrão do GA4 é 2 meses. Em GA4 › Administrador › Retenção de dados, mude para 14 meses. É o principal motivo de existir essa segunda fonte para um trabalho acadêmico.
+2. **Dimensões personalizadas.** O parâmetro `screen` só aparece em relatório depois de registrado em Administrador › Dimensões personalizadas (escopo de evento, nome `screen`). O mesmo vale para `auth_method` e `user_role`, que vão como propriedade de usuário.
+
+### Bloqueadores
+
+GA4 apanha dos mesmos bloqueadores do Clarity: `||google-analytics.com^` está na linha 5011 do EasyPrivacy, junto de `/gtag/js?` na 1204. Uma segunda ferramenta **não recupera** quem bloqueia — uBlock Origin, Brave e AdGuard derrubam os dois juntos. O ganho aqui é outro tipo de métrica, retenção maior e conferência cruzada, não cobertura.
+
+### Verificar
+
+- Realtime do GA4: deve acusar 1 usuário ativo ao abrir a página.
+- Badge `?clarity-debug`: mostra o ID e quantos hits entraram na fila (`hits 2` = `js` + `config`).
+- DevTools › Network, filtro `collect`.
+
+### LGPD
+
+Agora são dois rastreadores. O GA4 grava os cookies `_ga` e `_ga_<ID>` por dois anos. Cite os dois se houver submissão a comitê de ética. O mascaramento de e-mail e senha vale para o Clarity; o GA4 não grava conteúdo digitado, mas registra eventos, origem e navegação.
+
+---
+
 ## Estrutura do Projeto
 
 - `src/main.tsx` — entrada do React, ErrorBoundary e bootstrap da telemetria

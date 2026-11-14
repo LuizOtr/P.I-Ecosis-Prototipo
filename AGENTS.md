@@ -43,7 +43,8 @@ Documentação completa em `README.md`. Regras para não quebrar a coleta:
 - O snippet do Clarity vive em `index.html`, dentro do `<head>`. Não mova para o bundle React: ele precisa rodar mesmo quando o app quebra.
 - O ID do projeto aparece em dois lugares e precisa ser idêntico: `index.html` e a constante `CLARITY_PROJECT_ID` em `src/lib/clarity.ts`. O workflow de deploy falha se divergirem.
 - O rastreamento de telas é automático: basta declarar a nova tela no tipo `Screen` e no mapa `screenLabels` de `src/App.tsx`. O `useEffect` emite `screen_view_<tela>`.
-- Para ações novas, importe `trackEvent` e `setTag` de `src/lib/clarity`. Nunca chame `window.clarity` direto — o wrapper protege contra o script bloqueado.
+- Para ações novas, importe `trackEvent` e `setTag` de `src/lib/analytics` — a fachada envia para Clarity e GA4 de uma vez. Nunca chame `window.clarity` ou `window.gtag` direto.
+- O GA4 fica inerte enquanto `GA_MEASUREMENT_ID` em `src/lib/analytics.ts` estiver vazio. Não invente um ID para "testar em produção".
 - Não remova `data-clarity-mask` dos campos de e-mail e senha.
 - Não chame `grantConsent()` automaticamente. Consentimento só depois de uma escolha real do usuário.
 - Detecção de bloqueio usa `window.clarity.v` (versão) ou o retorno Promise de `identify`. Não use Resource Timing: dá falso positivo.

@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
-import { bootstrapClarity, trackFatalError } from "./lib/clarity"
+import { initAnalytics, trackFatalError } from "./lib/analytics"
 import "./index.css"
 
 interface ErrorBoundaryProps {
@@ -130,7 +130,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-bootstrapClarity()
+initAnalytics()
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
