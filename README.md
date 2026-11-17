@@ -104,7 +104,7 @@ O workflow de deploy falha se os dois divergirem ou se o snippet sumir do build,
 
 Segunda fonte de métricas. O GA4 traz número agregado (sessões, usuários, eventos, aquisição) e retenção de 14 meses, contra os 30 dias do Clarity. Não substitui o Clarity: mapa de calor e gravação de sessão continuam sendo dele. As duas ferramentas respondem perguntas diferentes.
 
-**Instalado: contêiner `GTM-PDBMKH29`.** O snippet vive em `index.html` (junto do Clarity, pelo mesmo motivo: precisa rodar mesmo quando o bundle quebra) e o ID fica em `src/lib/analytics.ts`. O deploy falha se os dois divergirem.
+**Instalado: contêiner `GTM-TVKK4R67`.** O snippet vive em `index.html` (junto do Clarity, pelo mesmo motivo: precisa rodar mesmo quando o bundle quebra) e o ID fica em `src/lib/analytics.ts`. O deploy falha se os dois divergirem.
 
 **O contêiner sozinho não coleta nada.** Ele é um executor: quem envia dado ao GA4 são as tags configuradas dentro dele. Com o contêiner publicado e nenhuma tag dentro, o `gtm.js` carrega, o dataLayer enche e o GA4 continua zerado. Três passos no painel resolvem:
 
@@ -131,7 +131,7 @@ GA4 apanha dos mesmos bloqueadores do Clarity: `||google-analytics.com^` está n
 
 ### Verificar
 
-- DevTools › Network: `gtm.js?id=GTM-PDBMKH29` deve carregar com 200. Depois, filtro `collect` mostra as requisições ao GA4.
+- DevTools › Network: `gtm.js?id=GTM-TVKK4R67` deve carregar com 200. Depois, filtro `collect` mostra as requisições ao GA4.
 - Badge `?clarity-debug`: mostra o contêiner e quantos comandos estão na fila (`fila 1` = o `js` do snippet).
 - Realtime do GA4: só acusa usuário ativo depois que o Google tag existir e o contêiner estiver publicado.
 

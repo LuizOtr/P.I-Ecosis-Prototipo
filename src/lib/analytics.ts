@@ -6,7 +6,7 @@
  * mesmo sinal — sem instrumentação duplicada e sem os dois divergirem.
  *
  * Google Analytics entra por um contêiner do Google Tag Manager
- * (`GTM-PDBMKH29`). O carregador fica em `index.html`, junto do Clarity e pelo
+ * (`GTM-TVKK4R67`). O carregador fica em `index.html`, junto do Clarity e pelo
  * mesmo motivo: precisa rodar mesmo quando o bundle React quebra.
  *
  * ATENÇÃO — o contêiner sozinho não coleta nada. Ele é um executor vazio: o
@@ -35,7 +35,7 @@ declare global {
  * Contêiner do Google Tag Manager. Precisa ser idêntico ao do snippet em
  * `index.html` — o workflow de deploy falha quando divergem.
  */
-export const GTM_CONTAINER_ID = "GTM-PDBMKH29"
+export const GTM_CONTAINER_ID = "GTM-TVKK4R67"
 
 const GTM_ID_PATTERN = /^GTM-[A-Z0-9]{4,}$/
 const MAX_USER_PROPERTY_LENGTH = 36

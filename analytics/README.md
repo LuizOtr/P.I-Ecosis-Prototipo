@@ -1,7 +1,7 @@
 # Coleta de métricas — EcoSis
 
 Pipeline que puxa os dados do Google Analytics 4 (propriedade `564336568`,
-stream `G-EY47T0176V` atrás do contêiner `GTM-PDBMKH29`) e transforma em
+stream `G-EY47T0176V` atrás do contêiner `GTM-TVKK4R67`) e transforma em
 tabelas e figuras para a seção de avaliação do Projeto Integrador.
 
 O Microsoft Clarity (`zdl7ay26wo`) cobre o lado comportamental — mapas de
