@@ -13,3 +13,8 @@ logs/
 .agents/
 .superpowers/
 docs/
+
+# Analytics — credencial e dados coletados nunca vão para o repositório público
+.venv-analytics/
+analytics/ga4-key*.json
+analytics/data/
